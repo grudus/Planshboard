@@ -41,14 +41,14 @@ class PlanshboardContext {
             DataSourceTransactionManager(dataSource)
 
     @Bean
-    fun connectionProvider(dataSource: DataSource)
-            = DataSourceConnectionProvider(TransactionAwareDataSourceProxy(dataSource))
+    fun connectionProvider(dataSource: DataSource): DataSourceConnectionProvider =
+            DataSourceConnectionProvider(TransactionAwareDataSourceProxy(dataSource))
 
     @Bean
-    fun dsl(connectionProvider: ConnectionProvider): DefaultDSLContext
-            = DefaultDSLContext(connectionProvider, MYSQL)
+    fun dsl(connectionProvider: ConnectionProvider): DefaultDSLContext =
+            DefaultDSLContext(connectionProvider, MYSQL)
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder
-            = BCryptPasswordEncoder(12)
+    fun passwordEncoder(): PasswordEncoder =
+            BCryptPasswordEncoder(12)
 }

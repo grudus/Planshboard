@@ -10,7 +10,7 @@ data class User(val id: Long? = null,
                 val password: String,
                 val role: Role = USER,
                 val token: String? = null,
-                val registerDate: LocalDateTime?) {
+                val registerDate: LocalDateTime) {
 
     fun getAuthorities(): List<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_${role.name}"))
 

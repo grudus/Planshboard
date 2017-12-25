@@ -1,4 +1,4 @@
-package com.grudus.planshboard.commons
+package com.grudus.planshboard.commons.date
 
 import org.jooq.Converter
 import java.sql.Timestamp

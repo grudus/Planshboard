@@ -2,10 +2,9 @@ package com.grudus.planshboard.boardgame
 
 import java.time.LocalDate
 
-class BoardGame(val id: Int? = null,
+class BoardGame(val id: Long? = null,
                 val name: String,
                 val minPlayers: Int? = null,
                 val maxPlayers: Int? = null,
                 val averagePlayingTime: Int? = null,
-                val releaseYear: LocalDate? = null) {
-}
+                val releaseYear: LocalDate? = null) {}

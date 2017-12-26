@@ -1,7 +1,7 @@
 package com.grudus.planshboard.configuration.security.token
 
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
-import com.grudus.planshboard.user.UserTokenService
+import com.grudus.planshboard.user.auth.UserTokenService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication

@@ -1,0 +1,12 @@
+language: java
+services:
+  - mysql
+before_install:
+  - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
+  - mysql -uroot -e "CREATE DATABASE planshboard"
+
+install:
+  ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ddb.url='jdbc:mysql://127.0.0.1/planshboard' -Ddb.username='root' -Ddb.password=''
+
+script:
+  ./mvnw test -B -Ddb.url='jdbc:mysql://127.0.0.1/planshboard' -Ddb.username='root' -Ddb.password='' -Dspring.datasource.password='' -Dspring.datasource.url='jdbc:mysql://127.0.0.1/planshboard' -Dspring.flyway.enabled='false'

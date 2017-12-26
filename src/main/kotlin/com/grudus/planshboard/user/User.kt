@@ -11,7 +11,7 @@ data class User(val id: Id? = null,
                 val password: String,
                 val role: Role = USER,
                 val token: String? = null,
-                val registerDate: LocalDateTime) {
+                val registerDate: LocalDateTime = LocalDateTime.now()) {
 
     fun getAuthorities(): List<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_${role.name}"))
 

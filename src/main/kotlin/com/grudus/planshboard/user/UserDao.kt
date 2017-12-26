@@ -1,6 +1,8 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.Tables.USERS
+import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.user.auth.InsertedUserResult
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
@@ -15,5 +17,12 @@ constructor(private val dsl: DSLContext) {
                     .where(USERS.NAME.eq(username))
                     .fetchOneInto(User::class.java)
 
-
+    fun registerNewUser(username: String, password: String): InsertedUserResult =
+        dsl.insertInto(USERS, USERS.NAME, USERS.PASSWORD, USERS.ROLE)
+                .values(username, password, User.Role.USER.name)
+                .returning(USERS.ID, USERS.REGISTER_DATE)
+                .fetchOne()
+                .let {record ->
+                    InsertedUserResult(record.id, record.registerDate)
+                }
 }

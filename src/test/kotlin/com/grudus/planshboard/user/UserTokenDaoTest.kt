@@ -1,6 +1,7 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.SpringBasedTest
+import com.grudus.planshboard.user.auth.UserTokenDao
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

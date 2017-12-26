@@ -18,5 +18,8 @@ constructor(private val userDao: UserDao, private val passwordEncoder: PasswordE
         val (id, registerDate) = userDao.registerNewUser(addUserRequest.username, encodedPassword)
         return User(id, addUserRequest.username, encodedPassword, registerDate = registerDate)
     }
+
+    fun usernameExists(username: String): Boolean =
+            userDao.findByUsername(username) != null
 }
 

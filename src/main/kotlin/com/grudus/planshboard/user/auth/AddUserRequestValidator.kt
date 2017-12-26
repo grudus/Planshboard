@@ -2,21 +2,28 @@ package com.grudus.planshboard.user.auth
 
 import com.grudus.planshboard.commons.Keys.EMPTY_PASSWORD
 import com.grudus.planshboard.commons.Keys.EMPTY_USERNAME
+import com.grudus.planshboard.commons.Keys.USERNAME_EXISTS
+import com.grudus.planshboard.user.UserService
 import org.apache.commons.lang3.StringUtils.isBlank
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 
 @Component
-class AddUserRequestValidator : Validator {
+class AddUserRequestValidator
+@Autowired
+constructor(private val userService: UserService) : Validator {
 
 
     override fun validate(target: Any?, errors: Errors?) {
-        val request = target as AddUserRequest
+        val (username, password) = target as AddUserRequest
 
-        if (isBlank(request.username))
+        if (isBlank(username))
             errors?.reject(EMPTY_USERNAME)
-        if (isBlank(request.password))
+        else if (userService.usernameExists(username))
+            errors?.reject(USERNAME_EXISTS)
+        if (isBlank(password))
             errors?.reject(EMPTY_PASSWORD)
     }
 

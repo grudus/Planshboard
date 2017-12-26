@@ -1,7 +1,6 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.Tables.USERS
-import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.user.auth.InsertedUserResult
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired

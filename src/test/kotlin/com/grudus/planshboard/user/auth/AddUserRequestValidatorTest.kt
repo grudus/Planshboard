@@ -1,7 +1,10 @@
 package com.grudus.planshboard.user.auth
 
 import com.grudus.planshboard.MockitoExtension
-import com.grudus.planshboard.commons.Keys
+import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.commons.RestKeys.EMPTY_PASSWORD
+import com.grudus.planshboard.commons.RestKeys.EMPTY_USERNAME
+import com.grudus.planshboard.commons.RestKeys.USERNAME_EXISTS
 import com.grudus.planshboard.user.UserService
 import com.grudus.planshboard.utils.ValidatorUtils.assertErrorCodes
 import com.grudus.planshboard.utils.ValidatorUtils.getErrors
@@ -45,7 +48,7 @@ internal class AddUserRequestValidatorTest {
 
         validator.validate(request, errors)
 
-        assertErrorCodes(errors, Keys.EMPTY_USERNAME)
+        assertErrorCodes(errors, EMPTY_USERNAME)
     }
 
 
@@ -56,7 +59,7 @@ internal class AddUserRequestValidatorTest {
 
         validator.validate(request, errors)
 
-        assertErrorCodes(errors, Keys.EMPTY_PASSWORD)
+        assertErrorCodes(errors, EMPTY_PASSWORD)
     }
 
 
@@ -68,7 +71,7 @@ internal class AddUserRequestValidatorTest {
 
         validator.validate(request, errors)
 
-        assertErrorCodes(errors, Keys.USERNAME_EXISTS)
+        assertErrorCodes(errors, USERNAME_EXISTS)
     }
 
     @Test
@@ -79,7 +82,7 @@ internal class AddUserRequestValidatorTest {
 
         validator.validate(request, errors)
 
-        assertErrorCodes(errors, Keys.USERNAME_EXISTS, Keys.EMPTY_PASSWORD)
+        assertErrorCodes(errors, USERNAME_EXISTS, EMPTY_PASSWORD)
     }
 
 
@@ -91,7 +94,7 @@ internal class AddUserRequestValidatorTest {
 
         validator.validate(request, errors)
 
-        assertErrorCodes(errors, Keys.EMPTY_USERNAME, Keys.EMPTY_PASSWORD)
+        assertErrorCodes(errors, EMPTY_USERNAME, EMPTY_PASSWORD)
         verify(userService, never()).usernameExists(anyString())
     }
 }

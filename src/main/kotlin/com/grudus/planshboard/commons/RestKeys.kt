@@ -1,7 +1,9 @@
 package com.grudus.planshboard.commons
 
-object Keys {
+object RestKeys {
     val EMPTY_USERNAME = "USERNAME.EMPTY"
     val EMPTY_PASSWORD = "PASSWORD.EMPTY"
     val USERNAME_EXISTS = "USERNAME.EXISTS"
+    val UNKNOWN_ERROR = "INTERNAL_SERVER_ERROR"
+    val PARAMETER_NOT_RESENT = "PARAMETER.NOT_PRESENT"
 }

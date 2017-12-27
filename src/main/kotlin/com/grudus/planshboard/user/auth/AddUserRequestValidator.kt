@@ -1,8 +1,8 @@
 package com.grudus.planshboard.user.auth
 
-import com.grudus.planshboard.commons.Keys.EMPTY_PASSWORD
-import com.grudus.planshboard.commons.Keys.EMPTY_USERNAME
-import com.grudus.planshboard.commons.Keys.USERNAME_EXISTS
+import com.grudus.planshboard.commons.RestKeys.EMPTY_PASSWORD
+import com.grudus.planshboard.commons.RestKeys.EMPTY_USERNAME
+import com.grudus.planshboard.commons.RestKeys.USERNAME_EXISTS
 import com.grudus.planshboard.user.UserService
 import org.apache.commons.lang3.StringUtils.isBlank
 import org.springframework.beans.factory.annotation.Autowired

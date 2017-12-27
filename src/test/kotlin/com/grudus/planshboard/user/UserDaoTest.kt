@@ -1,6 +1,6 @@
 package com.grudus.planshboard.user
 
-import com.grudus.planshboard.SpringBasedTest
+import com.grudus.planshboard.AbstractDatabaseTest
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.Assertions.*
@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 class UserDaoTest
 @Autowired
-constructor(private val userDao: UserDao) : SpringBasedTest() {
+constructor(private val userDao: UserDao) : AbstractDatabaseTest() {
 
     @Test
     fun `should find by username`() {

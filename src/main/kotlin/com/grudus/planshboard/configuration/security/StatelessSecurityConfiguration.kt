@@ -27,7 +27,7 @@ constructor(private val tokenAuthenticationService: TokenAuthenticationService, 
                 .sessionManagement().sessionCreationPolicy(STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/register").permitAll()
+                .antMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(CorsFilter(), UsernamePasswordAuthenticationFilter::class.java)

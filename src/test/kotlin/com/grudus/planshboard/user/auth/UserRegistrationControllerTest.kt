@@ -1,13 +1,14 @@
 package com.grudus.planshboard.user.auth
 
 import com.grudus.planshboard.AbstractControllerTest
-import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.commons.RestKeys.EMPTY_PASSWORD
 import com.grudus.planshboard.commons.RestKeys.EMPTY_USERNAME
 import com.grudus.planshboard.commons.RestKeys.USERNAME_EXISTS
 import com.grudus.planshboard.user.UserService
+import com.grudus.planshboard.utils.RequestParam
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.contains
+import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -58,5 +59,35 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
         postWithoutAuth(BASE_URL, user)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(USERNAME_EXISTS)))
+    }
+
+    @Test
+    fun `should check if username already exists`() {
+        val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
+        postWithoutAuth(BASE_URL, user)
+
+        getWithoutAuth("$BASE_URL/exists", RequestParam("username", user.username))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.exists").value(true))
+    }
+
+
+    @Test
+    fun `should detect username doesn't exists`() {
+        val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
+        postWithoutAuth(BASE_URL, user)
+
+        getWithoutAuth("$BASE_URL/exists", RequestParam("username", randomAlphabetic(12)))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.exists").value(false))
+    }
+
+    @Test
+    fun `should return 400 when checking if user exists without username`() {
+        val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
+        postWithoutAuth(BASE_URL, user)
+
+        getWithoutAuth("$BASE_URL/exists")
+                .andExpect(status().isBadRequest)
     }
 }

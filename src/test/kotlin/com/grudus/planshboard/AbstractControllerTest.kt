@@ -87,9 +87,14 @@ abstract class AbstractControllerTest : SpringBasedTest() {
                     .andReturn().response.contentAsString
                     .let { json -> objectMapper.readValue(json, aClass) }
 
-    protected operator fun get(url: String, vararg params: RequestParam): ResultActions {
+    protected fun get(url: String, vararg params: RequestParam): ResultActions {
         val get = bindParams(MockMvcRequestBuilders.get(url), arrayOf(*params))
         return performRequestWithAuth(get)
+    }
+
+    protected fun getWithoutAuth(url: String, vararg params: RequestParam): ResultActions {
+        val get = bindParams(MockMvcRequestBuilders.get(url), arrayOf(*params))
+        return mockMvc.perform(get)
     }
 
     protected fun delete(url: String): ResultActions {

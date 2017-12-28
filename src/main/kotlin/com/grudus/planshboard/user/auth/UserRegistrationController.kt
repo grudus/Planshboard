@@ -22,6 +22,9 @@ constructor(private val userService: UserService, private val addUserRequestVali
             userService.registerNewUser(addUserRequest)
                     .let { user -> IdResponse(user.id!!) }
 
+    @GetMapping("/exists")
+    fun usernameExists(@RequestParam username: String): Map<String, Boolean> =
+            mapOf("exists" to userService.usernameExists(username))
 
     @InitBinder("addUserRequest")
     protected fun initBinder(binder: WebDataBinder) {

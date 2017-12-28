@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.BindException
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
@@ -39,13 +40,16 @@ class ErrorHandler {
     fun bindExceptionException(e: BindException): ErrorResponse =
             ErrorResponse("An error occurred while parsing", toCodes(e.bindingResult))
 
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    @ResponseStatus(BAD_REQUEST)
+    fun missingRequestParameter(e: MissingServletRequestParameterException) =
+            ErrorResponse("Cannot find [${e.parameterName}] parameter in your request", PARAMETER_NOT_RESENT)
 
     @ExceptionHandler(AccessDeniedException::class)
     fun accessDenied(response: HttpServletResponse, request: HttpServletRequest, user: AuthenticatedUser) {
         logger.warn("Access denied for user [${user.user.name}] for resource [${request.requestURI}]")
         response.sendError(403)
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(BAD_REQUEST)

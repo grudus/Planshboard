@@ -3,6 +3,8 @@ package com.grudus.planshboard.boardgame
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.*
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -19,6 +21,7 @@ constructor(private val boardGameService: BoardGameService,
             boardGameService.findAll(authenticatedUser.userId)
 
     @PostMapping
+    @ResponseStatus(CREATED)
     fun save(authenticatedUser: AuthenticatedUser,
              @RequestBody @Valid addBoardGameRequest: AddBoardGameRequest): IdResponse =
             boardGameService.createNew(authenticatedUser.userId, addBoardGameRequest.name)

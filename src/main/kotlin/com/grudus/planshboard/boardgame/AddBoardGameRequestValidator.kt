@@ -1,7 +1,6 @@
 package com.grudus.planshboard.boardgame
 
 import com.grudus.planshboard.commons.RestKeys
-import com.grudus.planshboard.user.UserService
 import com.grudus.planshboard.user.auth.AuthenticationService
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,9 +24,9 @@ constructor(private val authenticationService: AuthenticationService, private va
         }
     }
 
-    private fun exists(name: String): Boolean =
-            boardGameService.exists(authenticationService.currentUserId(), name)
-
     override fun supports(clazz: Class<*>?): Boolean =
             AddBoardGameRequest::class.java.isAssignableFrom(clazz)
+
+    private fun exists(name: String): Boolean =
+            boardGameService.exists(authenticationService.currentUserId(), name)
 }

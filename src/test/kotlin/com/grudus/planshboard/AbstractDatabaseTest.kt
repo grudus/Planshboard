@@ -15,7 +15,7 @@ abstract class AbstractDatabaseTest : SpringBasedTest() {
     @Autowired
     private lateinit var userService: UserService
 
-    protected fun addUser(username: String = randomAlphabetic(11)): User =
+    protected final fun addUser(username: String = randomAlphabetic(11)): User =
             userService.registerNewUser(AddUserRequest(username, randomAlphabetic(11)))
 
 }

@@ -8,10 +8,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS boardgames (
-  id                   BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name                 VARCHAR(255) NOT NULL UNIQUE,
-  min_players          INT          NULL     DEFAULT 1,
-  max_players          INT          NULL,
-  average_playing_time INT          NULL,
-  releaseYear          DATE         NULL
-)
+  id     BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name   VARCHAR(255) NOT NULL,
+  user_id BIGINT       NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT UNIQUE_NAME UNIQUE (name, user_id)
+);

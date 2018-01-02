@@ -1,8 +1,9 @@
 package com.grudus.planshboard
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.commons.RestKeys.DUPLICATES_FOUND
 import com.grudus.planshboard.commons.RestKeys.PARAMETER_NOT_RESENT
+import com.grudus.planshboard.commons.exceptions.DuplicateEntryException
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -39,6 +40,11 @@ class ErrorHandler {
     @ResponseStatus(BAD_REQUEST)
     fun bindExceptionException(e: BindException): ErrorResponse =
             ErrorResponse("An error occurred while parsing", toCodes(e.bindingResult))
+
+    @ExceptionHandler(DuplicateEntryException::class)
+    @ResponseStatus(BAD_REQUEST)
+    fun bindExceptionException(e: DuplicateEntryException): ErrorResponse =
+            ErrorResponse(e.message, DUPLICATES_FOUND)
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
     @ResponseStatus(BAD_REQUEST)

@@ -27,6 +27,10 @@ constructor(private val boardGameService: BoardGameService,
             boardGameService.createNew(authenticatedUser.userId, addBoardGameRequest.name)
                     .let { id -> IdResponse(id) }
 
+    @GetMapping("/exists")
+    fun existsForUser(@RequestParam("name") name: String, authenticatedUser: AuthenticatedUser): Map<String, Boolean> =
+            boardGameService.exists(authenticatedUser.userId, name)
+                    .let { exists -> mapOf("exists" to exists) }
 
     @InitBinder("addBoardGameRequest")
     protected fun initBinder(binder: WebDataBinder) {

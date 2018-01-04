@@ -2,8 +2,8 @@ package com.grudus.planshboard.boardgame
 
 import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.utils.RequestParam
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -83,6 +83,38 @@ class BoardGameControllerTest : AbstractControllerTest() {
         get(BASE_URL)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Any>(1)))
+    }
+
+    @Test
+    fun `should check if board game exists`() {
+        val name = randomAlphabetic(13)
+        post(BASE_URL, AddBoardGameRequest(name))
+
+        get("$BASE_URL/exists", RequestParam("name", name))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.exists").value(true))
+    }
+
+    @Test
+    fun `should detect board game not exist`() {
+        val name = randomAlphabetic(13)
+        post(BASE_URL, AddBoardGameRequest(name))
+
+        get("$BASE_URL/exists", RequestParam("name", randomAlphabetic(11)))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.exists").value(false))
+    }
+
+    @Test
+    fun `should detect board game not exist if exists for different user`() {
+        val name = randomAlphabetic(13)
+        post(BASE_URL, AddBoardGameRequest(name))
+
+        login()
+
+        get("$BASE_URL/exists", RequestParam("name", name))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.exists").value(false))
     }
 
 }

@@ -3,6 +3,7 @@ package com.grudus.planshboard.boardgame
 import com.grudus.planshboard.AbstractDatabaseTest
 import com.grudus.planshboard.commons.Id
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
+import org.apache.commons.lang3.RandomUtils.nextLong
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -117,6 +118,54 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
         assertNotNull(user1Game)
         assertNotNull(user2Game)
         assertNotEquals(user1Game!!.id, user2Game!!.id)
+    }
+
+    @Test
+    fun `should find by id`() {
+        (0..3).map { randomAlphabetic(it + 3) }.forEach { boardGameDao.create(it, userId) }
+        val name = randomAlphabetic(11)
+        val id = boardGameDao.create(name, userId)
+
+        val game = boardGameDao.findById(id)
+
+        assertNotNull(game)
+        assertEquals(name, game!!.name)
+    }
+
+
+    @Test
+    fun `should not find by id`() {
+        (0..3).map { randomAlphabetic(it + 3) }.forEach { boardGameDao.create(it, userId) }
+
+        val game = boardGameDao.findById(nextLong())
+
+        assertNull(game)
+    }
+
+    @Test
+    fun `should delete by id`() {
+        (0..3).map { randomAlphabetic(it + 3) }.forEach { boardGameDao.create(it, userId) }
+        val name = randomAlphabetic(11)
+        val id = boardGameDao.create(name, userId)
+
+        boardGameDao.delete(id)
+
+        val game = boardGameDao.findById(id)
+
+        assertNull(game)
+    }
+
+
+    @Test
+    fun `should not delete by id when id not exists`() {
+        val allItems = 3
+        (0 until allItems).map { randomAlphabetic(it + 3) }.forEach { boardGameDao.create(it, userId) }
+
+        boardGameDao.delete(nextLong())
+
+        val allGames = boardGameDao.findAll(userId)
+
+        assertEquals(allItems, allGames.size)
     }
 
 }

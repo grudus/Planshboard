@@ -1,9 +1,11 @@
 package com.grudus.planshboard.boardgame
 
 import com.grudus.planshboard.AbstractControllerTest
+import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.utils.RequestParam
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
+import org.apache.commons.lang3.RandomUtils.nextLong
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -117,4 +119,38 @@ class BoardGameControllerTest : AbstractControllerTest() {
                 .andExpect(jsonPath("$.exists").value(false))
     }
 
+
+    @Test
+    fun `should delete board game`() {
+        val name = randomAlphabetic(11)
+        val id = post(BASE_URL, AddBoardGameRequest(name), IdResponse::class.java).id
+
+        delete("$BASE_URL/$id")
+                .andExpect(status().isNoContent)
+
+        get("$BASE_URL/exists", RequestParam("name", name))
+                .andExpect(jsonPath("$.exists").value(false))
+    }
+
+
+    @Test
+    fun `should do nothing when delete non existing game `() {
+        post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+
+        delete("$BASE_URL/${nextLong()}")
+                .andExpect(status().isNoContent)
+
+        get(BASE_URL)
+                .andExpect(jsonPath("$.[*]", hasSize<Any>(1)))
+    }
+
+    @Test
+    fun `should not be able to delete someone else's board game`() {
+        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+
+        login()
+
+        delete("$BASE_URL/$id")
+                .andExpect(status().isForbidden)
+    }
 }

@@ -1,6 +1,8 @@
 package com.grudus.planshboard
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import com.grudus.planshboard.boardgame.BoardGameNotFoundException
+import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.commons.RestKeys.DUPLICATES_FOUND
 import com.grudus.planshboard.commons.RestKeys.PARAMETER_NOT_RESENT
 import com.grudus.planshboard.commons.exceptions.DuplicateEntryException
@@ -34,6 +36,11 @@ class ErrorHandler {
     fun noSuchElementException(e: NoSuchElementException) {
         logger.warn("Element not found", e)
     }
+
+    @ExceptionHandler(BoardGameNotFoundException::class)
+    @ResponseStatus(NOT_FOUND)
+    fun boardGameNotFound(e: BoardGameNotFoundException): ErrorResponse =
+        ErrorResponse(e.message, RestKeys.ELEMENT_NOT_FOUND)
 
 
     @ExceptionHandler(BindException::class)

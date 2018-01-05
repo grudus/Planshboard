@@ -26,4 +26,15 @@ constructor(private val dsl: DSLContext) {
             dsl.selectFrom(BOARDGAMES)
                     .where(BOARDGAMES.USER_ID.eq(userId).and(BOARDGAMES.NAME.eq(name)))
                     .fetchOneInto(BoardGame::class.java)
+
+    fun findById(id: Id): BoardGame? =
+            dsl.selectFrom(BOARDGAMES)
+                    .where(BOARDGAMES.ID.eq(id))
+                    .fetchOneInto(BoardGame::class.java)
+
+    fun delete(id: Id) {
+        dsl.deleteFrom(BOARDGAMES)
+                .where(BOARDGAMES.ID.eq(id))
+                .execute()
+    }
 }

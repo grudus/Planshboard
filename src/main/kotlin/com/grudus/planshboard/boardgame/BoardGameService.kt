@@ -19,4 +19,12 @@ constructor(private val boardGameDao: BoardGameDao) {
 
     fun exists(userId: Id, name: String): Boolean =
             boardGameDao.findByName(userId, name) != null
+
+    fun belongsToAnotherUser(userId: Id, boardGameId: Id): Boolean =
+            boardGameDao.findById(boardGameId)
+                    ?.let{game -> game.userId != userId} ?: false
+
+    fun delete(boardGameId: Id) {
+        boardGameDao.delete(boardGameId)
+    }
 }

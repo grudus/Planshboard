@@ -37,4 +37,11 @@ constructor(private val dsl: DSLContext) {
                 .where(BOARDGAMES.ID.eq(id))
                 .execute()
     }
+
+    fun updateName(id: Id, name: String): Int =
+            dsl.update(BOARDGAMES)
+                    .set(BOARDGAMES.NAME, name)
+                    .where(BOARDGAMES.ID.eq(id))
+                    .execute()
+
 }

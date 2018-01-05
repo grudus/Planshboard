@@ -22,9 +22,16 @@ constructor(private val boardGameDao: BoardGameDao) {
 
     fun belongsToAnotherUser(userId: Id, boardGameId: Id): Boolean =
             boardGameDao.findById(boardGameId)
-                    ?.let{game -> game.userId != userId} ?: false
+                    ?.let { game -> game.userId != userId } ?: false
 
     fun delete(boardGameId: Id) {
         boardGameDao.delete(boardGameId)
+    }
+
+    fun update(id: Id, editBoardGameRequest: EditBoardGameRequest): BoardGameDto {
+        val updatedItemsCount = boardGameDao.updateName(id, editBoardGameRequest.name)
+        return if (updatedItemsCount == 1)
+            BoardGameDto(id, editBoardGameRequest.name)
+        else throw BoardGameNotFoundException("Cannot find board game with id [$id]")
     }
 }

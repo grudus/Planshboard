@@ -168,4 +168,36 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
         assertEquals(allItems, allGames.size)
     }
 
+    @Test
+    fun `should update name and return updated items count`() {
+        (0..3).map { randomAlphabetic(it + 3) }.forEach { boardGameDao.create(it, userId) }
+        val id = boardGameDao.create(randomAlphabetic(11), userId)
+
+        val updatedCount = boardGameDao.updateName(id, randomAlphabetic(12))
+
+        assertEquals(1, updatedCount)
+    }
+
+
+    @Test
+    fun `should not update when id not exists and return 0 as updated count`() {
+        val updatedCount = boardGameDao.updateName(nextLong(), randomAlphabetic(12))
+
+        assertEquals(0, updatedCount)
+    }
+
+
+    @Test
+    fun `should change name when updating`() {
+        val oldName = randomAlphabetic(11)
+        val newName = randomAlphabetic(12)
+        val id = boardGameDao.create(oldName, userId)
+
+        boardGameDao.updateName(id, newName)
+
+        val dbGame = boardGameDao.findById(id)
+
+        assertEquals(newName, dbGame!!.name)
+    }
+
 }

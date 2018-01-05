@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito
 
@@ -46,5 +47,25 @@ class BoardGameServiceTest {
         assertFalse(belongsToAnotherUser)
     }
 
+    @Test
+    fun `should change name and return updated object`() {
+        Mockito.`when`(boardGameDao.updateName(anyLong(), anyString())).thenReturn(1)
+        val name = randomAlphabetic(11)
+
+        val updated = BoardGameService(boardGameDao).update(nextLong(), EditBoardGameRequest(name))
+
+        assertEquals(name, updated.name)
+    }
+
+
+    @Test
+    fun `should throw error if dao doesn't update any item`() {
+        Mockito.`when`(boardGameDao.updateName(anyLong(), anyString())).thenReturn(0)
+        val name = randomAlphabetic(11)
+
+        assertThrows(BoardGameNotFoundException::class.java) {
+            BoardGameService(boardGameDao).update(nextLong(), EditBoardGameRequest(name))
+        }
+    }
 
 }

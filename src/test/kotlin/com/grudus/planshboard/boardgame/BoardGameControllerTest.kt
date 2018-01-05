@@ -153,4 +153,36 @@ class BoardGameControllerTest : AbstractControllerTest() {
         delete("$BASE_URL/$id")
                 .andExpect(status().isForbidden)
     }
+
+    @Test
+    fun `should update game's name`() {
+        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val newName = randomAlphabetic(14)
+
+        put("$BASE_URL/$id", EditBoardGameRequest(newName))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.name").value(newName))
+    }
+
+
+    @Test
+    fun `should not be able to update not existing game`() {
+        post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val newName = randomAlphabetic(14)
+
+        put("$BASE_URL/${nextLong()}", EditBoardGameRequest(newName))
+                .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should not be able to update someone else's game`() {
+        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val newName = randomAlphabetic(14)
+
+        login()
+
+        put("$BASE_URL/$id", EditBoardGameRequest(newName))
+                .andExpect(status().isForbidden)
+    }
+
 }

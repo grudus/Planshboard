@@ -7,7 +7,8 @@
     <profile>
       <id>PLANSHBOARD</id>
       <properties>
-        <db.url>postgres://ufnvzlrctftqsr:d8ecb9489d95c062786dd2f6fb4ee139b38fd2eabe55e51c13f5e2831c843b8b@ec2-54-217-243-160.eu-west-1.compute.amazonaws.com:5432/d5ok256mh126o4</db.url>
+        <db.url>jdbc:postgresql://ec2-54-217-243-160.eu-west-1.compute.amazonaws.com
+:5432/d5ok256mh126o4</db.url>
         <db.username>ufnvzlrctftqsr</db.username>
         <db.password>d8ecb9489d95c062786dd2f6fb4ee139b38fd2eabe55e51c13f5e2831c843b8b</db.password>
       </properties>

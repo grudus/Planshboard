@@ -1,0 +1,1 @@
+web: java -jar -Ddb.url='jdbc:postgresql://ec2-54-217-243-160.eu-west-1.compute.amazonaws.com:5432/d5ok256mh126o4' -Ddb.username='ufnvzlrctftqsr' -Ddb.password='d8ecb9489d95c062786dd2f6fb4ee139b38fd2eabe55e51c13f5e2831c843b8b' target/planshboard-0.0.1-SNAPSHOT.jar

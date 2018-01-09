@@ -26,6 +26,9 @@
         <junit-platform.version>1.0.0</junit-platform.version>
         <java.version>1.8</java.version>
         <kotlin.version>1.2.10</kotlin.version>
+        <db.driver>com.mysql.jdbc.Driver</db.driver>
+        <jooq.db.util.name>org.jooq.util.mysql.MySQLDatabase</jooq.db.util.name>
+        <jooq.inputSchema>planshboard</jooq.inputSchema>
     </properties>
 
     <dependencies>
@@ -78,6 +81,11 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -213,7 +221,7 @@
                 <version>4.2.0</version>
                 <configuration>
                     <cleanDisabled>true</cleanDisabled>
-                    <driver>com.mysql.jdbc.Driver</driver>
+                    <driver>${db.driver}</driver>
                     <url>${db.url}</url>
                     <user>${db.username}</user>
                     <password>${db.password}</password>
@@ -243,17 +251,17 @@
                 </executions>
                 <configuration>
                     <jdbc>
-                        <driver>com.mysql.jdbc.Driver</driver>
+                        <driver>${db.driver}</driver>
                         <url>${db.url}</url>
                         <user>${db.username}</user>
                         <password>${db.password}</password>
                     </jdbc>
                     <generator>
                         <database>
-                            <name>org.jooq.util.mysql.MySQLDatabase</name>
+                            <name>${jooq.db.util.name}</name>
                             <includes>.*</includes>
                             <outputSchemaToDefault>true</outputSchemaToDefault>
-                            <inputSchema>planshboard</inputSchema>
+                            <inputSchema>${jooq.inputSchema}</inputSchema>
                             <customTypes>
                                 <customType>
                                     <name>LocalDateTime</name>

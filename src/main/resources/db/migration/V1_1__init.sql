@@ -1,16 +1,15 @@
 CREATE TABLE IF NOT EXISTS users (
-  id            BIGINT       NOT NULL                 AUTO_INCREMENT PRIMARY KEY,
+  id            BIGSERIAL PRIMARY KEY,
   name          VARCHAR(255) NOT NULL UNIQUE,
   password      VARCHAR(255)                          DEFAULT NULL,
   role          VARCHAR(255) NOT NULL                 DEFAULT 'USER',
   token         VARCHAR(255),
-  register_date DATETIME     NOT NULL                 DEFAULT NOW()
+  register_date timestamp     NOT NULL                 DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS boardgames (
-  id     BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  id     BIGSERIAL PRIMARY KEY,
   name   VARCHAR(255) NOT NULL,
-  user_id BIGINT       NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users (id),
+  user_id BIGINT       NOT NULL REFERENCES users,
   CONSTRAINT UNIQUE_NAME UNIQUE (name, user_id)
 );

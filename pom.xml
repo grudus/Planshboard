@@ -26,9 +26,11 @@
         <junit-platform.version>1.0.0</junit-platform.version>
         <java.version>1.8</java.version>
         <kotlin.version>1.2.10</kotlin.version>
-        <db.driver>com.mysql.jdbc.Driver</db.driver>
-        <jooq.db.util.name>org.jooq.util.mysql.MySQLDatabase</jooq.db.util.name>
-        <jooq.inputSchema>planshboard</jooq.inputSchema>
+
+        <db.driver>org.postgresql.Driver</db.driver>
+        <jooq.db.util.name>org.jooq.util.postgres.PostgresDatabase</jooq.db.util.name>
+        <jooq.inputSchema>public</jooq.inputSchema>
+
     </properties>
 
     <dependencies>
@@ -257,10 +259,10 @@
                         <password>${db.password}</password>
                     </jdbc>
                     <generator>
+                        <name>org.jooq.util.DefaultGenerator</name>
                         <database>
                             <name>${jooq.db.util.name}</name>
                             <includes>.*</includes>
-                            <outputSchemaToDefault>true</outputSchemaToDefault>
                             <inputSchema>${jooq.inputSchema}</inputSchema>
                             <customTypes>
                                 <customType>
@@ -280,6 +282,7 @@
                                     <name>LocalDateTime</name>
                                     <types>timestamp</types>
                                 </forcedType>
+
 
                             </forcedTypes>
                         </database>

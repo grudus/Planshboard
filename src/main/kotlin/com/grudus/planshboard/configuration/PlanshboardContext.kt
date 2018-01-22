@@ -1,7 +1,7 @@
 package com.grudus.planshboard.configuration
 
 import org.jooq.ConnectionProvider
-import org.jooq.SQLDialect.MYSQL
+import org.jooq.SQLDialect;
 import org.jooq.impl.DataSourceConnectionProvider
 import org.jooq.impl.DefaultDSLContext
 import org.springframework.beans.factory.annotation.Value
@@ -46,7 +46,7 @@ class PlanshboardContext {
 
     @Bean
     fun dsl(connectionProvider: ConnectionProvider): DefaultDSLContext =
-            DefaultDSLContext(connectionProvider, MYSQL)
+            DefaultDSLContext(connectionProvider, SQLDialect.POSTGRES)
 
     @Bean
     fun passwordEncoder(): PasswordEncoder =

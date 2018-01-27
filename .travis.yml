@@ -8,4 +8,4 @@ install:
   ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ddb.url='jdbc:postgresql://127.0.0.1:5432/planshboard' -Ddb.username='postgres' -Ddb.password=''
 
 script:
-  ./mvnw test -B -Ddb.url='jdbc:postgresql://127.0.0.1:5432/planshboard' -Ddb.username='postgres' -Ddb.password='' -Dspring.datasource.password='' -Dspring.datasource.url='jdbc:postgresql://127.0.0.1:5432/planshboard' -Dspring.flyway.enabled='false'
+  ./mvnw test -B -Ddb.url='jdbc:postgresql://127.0.0.1:5432/planshboard' -Ddb.username='postgres' -Ddb.password='' -Dspring.datasource.username='postgres' -Dspring.datasource.password='' -Dspring.datasource.url='jdbc:postgresql://127.0.0.1:5432/planshboard' -Dspring.flyway.enabled='false'

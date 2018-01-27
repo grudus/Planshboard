@@ -45,9 +45,11 @@ constructor(private val userDao: UserDao) : AbstractDatabaseTest() {
 
     @Test
     fun `should register new user and return id and date`() {
+        val dateBeforeInsert = LocalDateTime.now().minusSeconds(1)
+
         val (_, date) = userDao.registerNewUser(randomAlphabetic(11), randomAlphabetic(11))
 
-        assertFalse(LocalDateTime.now().isBefore(date))
+        assertTrue(date.isAfter(dateBeforeInsert))
     }
 
     @Test

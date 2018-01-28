@@ -16,4 +16,7 @@ constructor(private val opponentDao: OpponentDao){
     fun findAll(userId: Id): List<OpponentDto> =
             opponentDao.findAllOpponents(userId)
                     .map { OpponentDto(it.id!!, it.name) }
+
+    fun exists(currentUserId: Id, name: String): Boolean =
+            opponentDao.findByName(currentUserId, name) != null
 }

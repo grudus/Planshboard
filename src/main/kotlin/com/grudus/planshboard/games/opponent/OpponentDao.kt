@@ -23,4 +23,9 @@ constructor(private val dsl: DSLContext) {
             dsl.selectFrom(OPPONENTS)
                     .where(OPPONENTS.USER_ID.eq(userId))
                     .fetchInto(Opponent::class.java)
+
+    fun findByName(userId: Id, name: String): Opponent? =
+            dsl.selectFrom(OPPONENTS)
+                    .where(OPPONENTS.USER_ID.eq(userId).and(OPPONENTS.NAME.eq(name)))
+                    .fetchOneInto(Opponent::class.java)
 }

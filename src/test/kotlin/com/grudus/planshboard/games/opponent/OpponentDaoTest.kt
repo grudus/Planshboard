@@ -2,6 +2,7 @@ package com.grudus.planshboard.games.opponent
 
 import com.grudus.planshboard.AbstractDatabaseTest
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
+import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,6 +47,26 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         val opponents = opponentDao.findAllOpponents(userId)
 
         assertTrue(opponents.isEmpty())
+    }
+
+    @Test
+    fun `should not be able to save save opponent's name for user twice`() {
+        val name = randomAlphabetic(11)
+
+        opponentDao.addOpponent(userId, name)
+
+        assertThrows(DataAccessException::class.java) {
+            opponentDao.addOpponent(userId, name)
+        }
+    }
+
+    @Test
+    fun `should be able to save the same opponent's name for different users`() {
+        val name = randomAlphabetic(11)
+        val newUserId = addUser().id!!
+
+        opponentDao.addOpponent(userId, name)
+        opponentDao.addOpponent(newUserId, name)
     }
 
 }

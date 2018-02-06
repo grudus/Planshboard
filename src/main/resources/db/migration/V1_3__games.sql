@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS games (
+  id      BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users
+);
+
+CREATE TABLE IF NOT EXISTS game_opponents (
+  id          BIGSERIAL PRIMARY KEY,
+  opponent_id BIGINT NOT NULL REFERENCES opponents,
+  game_id     BIGINT NOT NULL REFERENCES games
+);

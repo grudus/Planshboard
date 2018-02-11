@@ -22,10 +22,10 @@ constructor(private val dsl: DSLContext) {
                     .where(GAMES.ID.eq(gameId))
                     .fetchInto(Opponent::class.java)
 
-    fun saveGame(userId: Id, opponents: List<Id>): Id {
+    fun saveGame(boardGameId: Id, opponents: List<Id>): Id {
         require(opponents.isNotEmpty()) { "Cannot save game without any opponent" }
 
-        val gameId = insertGameAlone(userId)
+        val gameId = insertGameAlone(boardGameId)
         insertGameOpponents(gameId, opponents)
         return gameId
     }
@@ -42,9 +42,9 @@ constructor(private val dsl: DSLContext) {
         batchStep.execute()
     }
 
-    private fun insertGameAlone(userId: Id): Id =
-            dsl.insertInto(GAMES, GAMES.USER_ID)
-                    .values(userId)
+    private fun insertGameAlone(boardGameId: Id): Id =
+            dsl.insertInto(GAMES, GAMES.BOARDGAME_ID)
+                    .values(boardGameId)
                     .returning()
                     .fetchOne()
                     .id

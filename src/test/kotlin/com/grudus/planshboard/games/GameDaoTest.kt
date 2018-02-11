@@ -1,6 +1,7 @@
 package com.grudus.planshboard.games
 
 import com.grudus.planshboard.AbstractDatabaseTest
+import com.grudus.planshboard.boardgame.BoardGameDao
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.games.opponent.OpponentDao
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
@@ -12,10 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired
 
 class GameDaoTest
 @Autowired
-constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
+constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao, private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
 
     private val userId: Id by lazy {
         addUser().id!!
+    }
+    private val boardGameId by lazy {
+        boardGameDao.create(randomAlphabetic(11), userId)
     }
 
 
@@ -23,7 +27,7 @@ constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) 
     fun `should save game`() {
         val opponentIds = addOpponents(5)
 
-        val id = gameDao.saveGame(userId, opponentIds)
+        val id = gameDao.saveGame(boardGameId, opponentIds)
 
         assertNotNull(id)
     }
@@ -31,7 +35,7 @@ constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) 
     @Test
     fun `should not be able to save game without opponents`() {
         assertThrows(IllegalArgumentException::class.java) {
-            gameDao.saveGame(userId, emptyList())
+            gameDao.saveGame(boardGameId, emptyList())
         }
     }
 
@@ -39,8 +43,8 @@ constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) 
     fun `should be able to save game for the same opponents`() {
         val opponentIds = addOpponents(4)
 
-        val id1 = gameDao.saveGame(userId, opponentIds)
-        val id2 = gameDao.saveGame(userId, opponentIds)
+        val id1 = gameDao.saveGame(boardGameId, opponentIds)
+        val id2 = gameDao.saveGame(boardGameId, opponentIds)
 
         assertNotEquals(id1, id2)
     }
@@ -48,7 +52,7 @@ constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) 
     @Test
     fun `should find all opponents for game`() {
         val opponentIds = addOpponents(3)
-        val gameId = gameDao.saveGame(userId, opponentIds)
+        val gameId = gameDao.saveGame(boardGameId, opponentIds)
 
         val opponents = gameDao.findOpponentsForGame(gameId)
                 .map { it.id!! }
@@ -61,8 +65,8 @@ constructor(private val gameDao: GameDao, private val opponentDao: OpponentDao) 
     fun `should find opponents for specific game when multiple exists`() {
         val game1Count = 5
         val game2Count = 3
-        val game1Id = gameDao.saveGame(userId, addOpponents(game1Count))
-        val game2Id = gameDao.saveGame(userId, addOpponents(game2Count))
+        val game1Id = gameDao.saveGame(boardGameId, addOpponents(game1Count))
+        val game2Id = gameDao.saveGame(boardGameId, addOpponents(game2Count))
 
         val opponents1 = gameDao.findOpponentsForGame(game1Id)
         val opponents2 = gameDao.findOpponentsForGame(game2Id)

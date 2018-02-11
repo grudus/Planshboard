@@ -12,9 +12,9 @@ class OpponentDao
 constructor(private val dsl: DSLContext) {
 
 
-    fun addOpponent(userId: Id, name: String): Id =
-            dsl.insertInto(OPPONENTS, OPPONENTS.USER_ID, OPPONENTS.NAME)
-                    .values(userId, name)
+    fun addOpponent(userId: Id, name: String, isRealUser: Boolean = false): Id =
+            dsl.insertInto(OPPONENTS, OPPONENTS.USER_ID, OPPONENTS.NAME, OPPONENTS.IS_REAL_USER)
+                    .values(userId, name, isRealUser)
                     .returning()
                     .fetchOne()
                     .id

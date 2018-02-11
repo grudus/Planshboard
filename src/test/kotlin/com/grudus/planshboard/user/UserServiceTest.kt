@@ -1,6 +1,7 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.MockitoExtension
+import com.grudus.planshboard.games.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
 import com.grudus.planshboard.user.auth.InsertedUserResult
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
@@ -10,8 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.anyString
+import org.mockito.Mockito.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDateTime.now
 
@@ -24,11 +24,14 @@ internal class UserServiceTest {
     @Mock
     private lateinit var passwordEncoder: PasswordEncoder
 
+    @Mock
+    private lateinit var opponentService: OpponentService
+
     private lateinit var userService: UserService
 
     @BeforeEach
     fun init() {
-        userService = UserService(userDao, passwordEncoder)
+        userService = UserService(userDao, passwordEncoder, opponentService)
     }
 
     @Test
@@ -47,6 +50,17 @@ internal class UserServiceTest {
         assertNotEquals(password, user.password)
         assertEquals(id, user.id)
         assertEquals(date, user.registerDate)
+    }
+
+    @Test
+    fun `should insert user as opponent`() {
+        `when`(passwordEncoder.encode(anyString())).thenReturn(randomAlphabetic(52))
+        `when`(userDao.registerNewUser(anyString(), anyString()))
+                .thenReturn(InsertedUserResult(nextLong(), now()))
+
+        val user = userService.registerNewUser(AddUserRequest(randomAlphabetic(11), randomAlphabetic(11)))
+
+        verify(opponentService).addCurrentUserAsOpponent(user.id!!, user.name)
     }
 
     @Test

@@ -16,7 +16,7 @@ constructor(private val dsl: DSLContext) {
 
     fun findOpponentsForGame(gameId: Id): List<Opponent> =
             dsl.select(OPPONENTS.ID, OPPONENTS.USER_ID, OPPONENTS.NAME)
-                    .from(GAME_OPPONENTS)
+                    .from(GAME_RESULTS)
                     .join(OPPONENTS).onKey()
                     .join(GAMES).onKey()
                     .where(GAMES.ID.eq(gameId))
@@ -32,7 +32,7 @@ constructor(private val dsl: DSLContext) {
 
 
     private fun insertGameOpponents(gameId: Id, opponents: List<Id>) {
-        val batchStep = dsl.batch(dsl.insertInto(GAME_OPPONENTS, GAME_OPPONENTS.GAME_ID, GAME_OPPONENTS.OPPONENT_ID)
+        val batchStep = dsl.batch(dsl.insertInto(GAME_RESULTS, GAME_RESULTS.GAME_ID, GAME_RESULTS.OPPONENT_ID)
                 .values(null as Long?, null))
 
         opponents.forEach { opponentId ->

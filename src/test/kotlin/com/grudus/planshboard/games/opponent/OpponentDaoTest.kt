@@ -27,7 +27,7 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
                 .forEach { opponentDao.addOpponent(userId, it) }
         opponentDao.addOpponent(addUser().id!!, randomAlphabetic(11))
 
-        val opponents = opponentDao.findAllOpponents(userId)
+        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
 
         assertEquals(3, opponents.size)
     }
@@ -35,16 +35,16 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
     @Test
     fun `should return empty list when no opponents for user`() {
         (0 until 10).map { randomAlphabetic(it + 4) }
-                .forEach{opponentDao.addOpponent(userId, it)}
+                .forEach { opponentDao.addOpponent(userId, it) }
 
-        val opponents = opponentDao.findAllOpponents(addUser().id!!)
+        val opponents = opponentDao.findAllOpponentsWithoutReal(addUser().id!!)
 
         assertTrue(opponents.isEmpty())
     }
 
     @Test
     fun `should return empty list when no opponents at all`() {
-        val opponents = opponentDao.findAllOpponents(userId)
+        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
 
         assertTrue(opponents.isEmpty())
     }
@@ -67,6 +67,25 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
 
         opponentDao.addOpponent(userId, name)
         opponentDao.addOpponent(newUserId, name)
+    }
+
+    @Test
+    fun `should always has opponent when including real ones`() {
+        val opponents = opponentDao.findAllOpponentsWithReal(userId)
+
+        assertEquals(1, opponents.size)
+    }
+
+
+    @Test
+    fun `should find opponents with current user`() {
+        val count = 3
+        (0 until count).map { randomAlphabetic(4 + it) }
+                .forEach { opponentDao.addOpponent(userId, it) }
+
+        val opponents = opponentDao.findAllOpponentsWithReal(userId)
+
+        assertEquals(count + 1, opponents.size)
     }
 
 }

@@ -4,8 +4,10 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.grudus.planshboard.boardgame.BoardGameNotFoundException
 import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.commons.RestKeys.DUPLICATES_FOUND
+import com.grudus.planshboard.commons.RestKeys.ELEMENT_NOT_FOUND
 import com.grudus.planshboard.commons.RestKeys.PARAMETER_NOT_RESENT
 import com.grudus.planshboard.commons.exceptions.DuplicateEntryException
+import com.grudus.planshboard.commons.exceptions.ResourceNotFoundException
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -37,10 +39,15 @@ class ErrorHandler {
         logger.warn("Element not found", e)
     }
 
+    @ExceptionHandler(ResourceNotFoundException::class)
+    @ResponseStatus(NOT_FOUND)
+    fun noSuchElementException(e: ResourceNotFoundException) =
+            ErrorResponse(e.message ?: ELEMENT_NOT_FOUND, ELEMENT_NOT_FOUND)
+
     @ExceptionHandler(BoardGameNotFoundException::class)
     @ResponseStatus(NOT_FOUND)
     fun boardGameNotFound(e: BoardGameNotFoundException): ErrorResponse =
-        ErrorResponse(e.message, RestKeys.ELEMENT_NOT_FOUND)
+        ErrorResponse(e.message, ELEMENT_NOT_FOUND)
 
 
     @ExceptionHandler(BindException::class)

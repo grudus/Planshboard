@@ -40,4 +40,9 @@ constructor(private val dsl: DSLContext) {
                     .returning()
                     .fetchOne()
                     .id
+
+    fun findById(gameId: Id): Game? =
+            dsl.selectFrom(GAMES)
+                    .where(GAMES.ID.eq(gameId))
+                    .fetchOneInto(Game::class.java)
 }

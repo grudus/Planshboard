@@ -24,6 +24,10 @@ constructor(private val boardGameDao: BoardGameDao) {
             boardGameDao.findById(boardGameId)
                     ?.let { game -> game.userId != userId } ?: false
 
+    fun existsForUser(userId: Id, boardGameId: Id): Boolean =
+            boardGameDao.findById(boardGameId)
+                    ?.let { boardGame -> boardGame.userId == userId } ?: false
+
     fun delete(boardGameId: Id) {
         boardGameDao.delete(boardGameId)
     }
@@ -34,4 +38,5 @@ constructor(private val boardGameDao: BoardGameDao) {
             BoardGameDto(id, editBoardGameRequest.name)
         else throw BoardGameNotFoundException("Cannot find board game with id [$id]")
     }
+
 }

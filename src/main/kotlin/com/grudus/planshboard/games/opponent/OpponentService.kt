@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 @Service
 class OpponentService
 @Autowired
-constructor(private val opponentDao: OpponentDao){
+constructor(private val opponentDao: OpponentDao) {
 
     fun addOpponent(userId: Id, addOpponentRequest: AddOpponentRequest) =
             opponentDao.addOpponent(userId, addOpponentRequest.name)
@@ -21,4 +21,10 @@ constructor(private val opponentDao: OpponentDao){
 
     fun exists(currentUserId: Id, name: String): Boolean =
             opponentDao.findByName(currentUserId, name) != null
+
+    fun allExists(userId: Id, opponents: List<Id>): Boolean {
+        val allOpponents: List<Id> = opponentDao.findAllOpponentsWithReal(userId)
+                .map { it.id!! }
+        return allOpponents.containsAll(opponents)
+    }
 }

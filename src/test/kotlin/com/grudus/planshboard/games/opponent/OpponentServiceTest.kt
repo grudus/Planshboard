@@ -40,7 +40,7 @@ class OpponentServiceTest {
     fun `should return true if passing empty list`() {
         val ids = emptyList<Id>()
         Mockito.`when`(opponentDao.findAllOpponentsWithReal(anyLong()))
-                .thenReturn(listOf(randomOpponent(ids[0]), randomOpponent(ids[1]), randomOpponent()))
+                .thenReturn(listOf(randomOpponent(), randomOpponent(), randomOpponent()))
 
         val allExists = opponentService.allExists(nextLong(), ids)
         assertTrue(allExists)

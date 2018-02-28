@@ -23,6 +23,12 @@ constructor(private val boardGameService: BoardGameService,
     fun findAll(authenticatedUser: AuthenticatedUser): List<BoardGameDto> =
             boardGameService.findAll(authenticatedUser.userId)
 
+    @GetMapping("/{id}")
+    @PreAuthorize("@boardGameSecurityService.hasAccessToBoardGame(#user, #id)")
+    fun findById(user: AuthenticatedUser,
+                 @PathVariable id: Id): BoardGameDto =
+            boardGameService.findById(id)
+
     @PostMapping
     @ResponseStatus(CREATED)
     fun save(authenticatedUser: AuthenticatedUser,

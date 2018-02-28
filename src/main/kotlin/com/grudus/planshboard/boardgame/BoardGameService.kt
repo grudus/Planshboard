@@ -39,4 +39,9 @@ constructor(private val boardGameDao: BoardGameDao) {
         else throw BoardGameNotFoundException("Cannot find board game with id [$id]")
     }
 
+    fun findById(id: Id): BoardGameDto =
+            boardGameDao.findById(id)
+                    ?.let { BoardGameDto(it) }
+                    ?: throw BoardGameNotFoundException("Cannot find board game with id [$id]")
+
 }

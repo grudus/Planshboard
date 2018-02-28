@@ -185,4 +185,36 @@ class BoardGameControllerTest : AbstractControllerTest() {
                 .andExpect(status().isForbidden)
     }
 
+    @Test
+    fun `should find by id`() {
+        val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
+        val id = post(BASE_URL, gameRequest, IdResponse::class.java).id
+
+        get("$BASE_URL/$id")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.name").value(gameRequest.name))
+    }
+
+    @Test
+    fun `should return 404 when accessing not existing board game`() {
+        val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
+        post(BASE_URL, gameRequest, IdResponse::class.java).id
+
+        get("$BASE_URL/${nextLong()}")
+                .andExpect(status().isNotFound)
+    }
+
+
+    @Test
+    fun `should not be able to get someone else's board game `() {
+        val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
+        val id = post(BASE_URL, gameRequest, IdResponse::class.java).id
+
+        login()
+
+        get("$BASE_URL/$id")
+                .andExpect(status().isForbidden)
+    }
+
 }

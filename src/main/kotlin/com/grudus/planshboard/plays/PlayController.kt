@@ -1,9 +1,9 @@
-package com.grudus.planshboard.games
+package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
-import com.grudus.planshboard.games.opponent.OpponentDto
+import com.grudus.planshboard.plays.opponent.OpponentDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -12,31 +12,31 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/games")
-class GameController
+@RequestMapping("/api/plays")
+class PlayController
 @Autowired
-constructor(private val gameService: GameService,
-            private val addGameRequestValidator: AddGameRequestValidator) {
+constructor(private val playService: PlayService,
+            private val addPlayRequestValidator: AddPlayRequestValidator) {
 
     @GetMapping("/{id}/opponents")
-    @PreAuthorize("@gameSecurityService.hasAccessToGame(#user, #gameId)")
-    fun findOpponentsForGame(@PathVariable("id") gameId: Id,
+    @PreAuthorize("@playSecurityService.hasAccessToPlay(#user, #playId)")
+    fun findOpponentsForPlay(@PathVariable("id") playId: Id,
                              user: AuthenticatedUser): List<OpponentDto> =
-            gameService.findOpponentsForGame(gameId)
+            playService.findOpponentsForPlay(playId)
                     .map { OpponentDto(it.id!!, it.name) }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun addGame(@RequestBody @Valid addGameRequest: AddGameRequest,
+    fun addPlay(@RequestBody @Valid addPlayRequest: AddPlayRequest,
                 authenticatedUser: AuthenticatedUser): IdResponse =
-            gameService.saveGame(addGameRequest.boardGameId, addGameRequest.opponents)
+            playService.savePlay(addPlayRequest.boardGameId, addPlayRequest.opponents)
                     .let { id -> IdResponse(id) }
 
 
 
-    @InitBinder("addGameRequest")
+    @InitBinder("addPlayRequest")
     protected fun initEditBinder(binder: WebDataBinder) {
-        binder.validator = addGameRequestValidator
+        binder.validator = addPlayRequestValidator
     }
 }

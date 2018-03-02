@@ -1,7 +1,7 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.MockitoExtension
-import com.grudus.planshboard.games.opponent.OpponentService
+import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
 import com.grudus.planshboard.user.auth.InsertedUserResult
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic

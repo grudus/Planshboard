@@ -1,3 +1,3 @@
-package com.grudus.planshboard.games.opponent
+package com.grudus.planshboard.plays.opponent
 
 data class AddOpponentRequest(val name: String)

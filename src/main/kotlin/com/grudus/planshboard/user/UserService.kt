@@ -1,6 +1,6 @@
 package com.grudus.planshboard.user
 
-import com.grudus.planshboard.games.opponent.OpponentService
+import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder

@@ -1,4 +1,4 @@
-package com.grudus.planshboard.games.opponent
+package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.AbstractDatabaseTest
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic

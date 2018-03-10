@@ -1,4 +1,4 @@
-package com.grudus.planshboard.plays
+package com.grudus.planshboard.plays.model
 
 import com.grudus.planshboard.commons.Id
 

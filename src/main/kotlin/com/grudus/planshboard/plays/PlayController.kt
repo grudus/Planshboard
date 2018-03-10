@@ -3,6 +3,7 @@ package com.grudus.planshboard.plays
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
+import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.opponent.OpponentDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/plays")
+@RequestMapping("/api/board-games/{boardGameId}/plays")
 class PlayController
 @Autowired
 constructor(private val playService: PlayService,
@@ -29,10 +30,10 @@ constructor(private val playService: PlayService,
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun addPlay(@RequestBody @Valid addPlayRequest: AddPlayRequest,
+                @PathVariable("boardGameId") boardGameId: Id,
                 authenticatedUser: AuthenticatedUser): IdResponse =
-            playService.savePlay(authenticatedUser.userId, addPlayRequest.boardGameId, addPlayRequest.opponents)
+            playService.savePlay(authenticatedUser.userId, boardGameId, addPlayRequest.opponents)
                     .let { id -> IdResponse(id) }
-
 
 
     @InitBinder("addPlayRequest")

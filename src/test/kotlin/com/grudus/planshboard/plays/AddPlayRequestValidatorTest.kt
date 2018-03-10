@@ -4,6 +4,8 @@ import com.grudus.planshboard.MockitoExtension
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.plays.model.AddPlayOpponent
+import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AuthenticationService
 import com.grudus.planshboard.utils.ValidatorUtils.assertErrorCodes
@@ -27,27 +29,21 @@ class AddPlayRequestValidatorTest {
     private lateinit var authenticationService: AuthenticationService
 
     @Mock
-    private lateinit var boardGameService: BoardGameService
-
-    @Mock
     private lateinit var opponentService: OpponentService
 
     private lateinit var validator: AddPlayRequestValidator
 
     @BeforeEach
     fun init() {
-        validator = AddPlayRequestValidator(authenticationService, boardGameService, opponentService)
+        validator = AddPlayRequestValidator(authenticationService, opponentService)
         `when`(authenticationService.currentUserId()).thenReturn(nextLong())
         `when`(opponentService.allExists(anyLong(), anyList())).thenReturn(true)
         `when`(opponentService.allDoNotExist(anyLong(), anyList())).thenReturn(true)
-        `when`(boardGameService.existsForUser(anyLong(), anyLong())).thenReturn(true)
     }
 
     @Test
     fun `should validate properly`() {
-        `when`(boardGameService.existsForUser(anyLong(), anyLong())).thenReturn(true)
-        `when`(boardGameService.existsForUser(anyLong(), anyLong())).thenReturn(true)
-        val request = AddPlayRequest(nextLong(), randomOpponents())
+        val request = AddPlayRequest(randomOpponents())
         val errors = getErrors(request)
 
         validator.validate(request, errors)
@@ -55,22 +51,10 @@ class AddPlayRequestValidatorTest {
         assertFalse(errors.hasErrors())
     }
 
-    @Test
-    fun `should not validate properly when board game not exists`() {
-        `when`(boardGameService.existsForUser(anyLong(), anyLong())).thenReturn(false)
-
-        val request = AddPlayRequest(nextLong(), randomOpponents())
-        val errors = getErrors(request)
-
-        validator.validate(request, errors)
-
-        assertEquals(1, errors.errorCount)
-        assertErrorCodes(errors, RestKeys.BOARD_GAME_NOT_EXISTS)
-    }
 
     @Test
     fun `should not validate properly when no opponents`() {
-        val request = AddPlayRequest(nextLong(), emptyList())
+        val request = AddPlayRequest(emptyList())
         val errors = getErrors(request)
 
         validator.validate(request, errors)
@@ -83,7 +67,7 @@ class AddPlayRequestValidatorTest {
     fun `should not validate properly when opponents with id doesn't exist`() {
         `when`(opponentService.allExists(anyLong(), anyList())).thenReturn(false)
 
-        val request = AddPlayRequest(nextLong(), randomOpponents(id = 5))
+        val request = AddPlayRequest(randomOpponents(id = 5))
         val errors = getErrors(request)
 
         validator.validate(request, errors)
@@ -96,7 +80,7 @@ class AddPlayRequestValidatorTest {
     fun `should not validate properly when opponents without id exist`() {
         `when`(opponentService.allDoNotExist(anyLong(), anyList())).thenReturn(false)
 
-        val request = AddPlayRequest(nextLong(), randomOpponents())
+        val request = AddPlayRequest(randomOpponents())
         val errors = getErrors(request)
 
         validator.validate(request, errors)

@@ -4,6 +4,7 @@ import com.grudus.planshboard.AbstractDatabaseTest
 import com.grudus.planshboard.Tables.PLAYS_RESULTS
 import com.grudus.planshboard.boardgame.BoardGameDao
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.PlayResult
 import com.grudus.planshboard.plays.opponent.OpponentDao
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.hamcrest.MatcherAssert.assertThat

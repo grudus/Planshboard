@@ -4,6 +4,7 @@ import com.grudus.planshboard.AbstractSpringServiceTest
 import com.grudus.planshboard.Tables.PLAYS_RESULTS
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.AddPlayOpponent
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.utils.randomStrings

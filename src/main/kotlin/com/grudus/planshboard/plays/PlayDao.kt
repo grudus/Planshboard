@@ -2,6 +2,8 @@ package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.Tables.*
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.Play
+import com.grudus.planshboard.plays.model.PlayResult
 import com.grudus.planshboard.plays.opponent.Opponent
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired

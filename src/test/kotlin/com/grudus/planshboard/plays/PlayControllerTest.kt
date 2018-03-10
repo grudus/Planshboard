@@ -4,7 +4,8 @@ import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
-import com.grudus.planshboard.plays.opponent.AddOpponentRequest
+import com.grudus.planshboard.plays.model.AddPlayOpponent
+import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.utils.randomStrings
@@ -23,11 +24,11 @@ class PlayControllerTest
 constructor(private val boardGameService: BoardGameService,
             private val opponentService: OpponentService) : AbstractControllerTest() {
 
-    private val BASE_URL = "/api/plays"
-
     private val boardGameId: Id by lazy {
         boardGameService.createNew(authentication.userId, randomAlphabetic(11))
     }
+
+    private fun baseUrl(boardGameId: Id) = "/api/board-games/$boardGameId/plays"
 
     @BeforeEach
     fun init() {
@@ -36,9 +37,9 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should save play`() {
-        val request = AddPlayRequest(boardGameId, addOpponents(3))
+        val request = AddPlayRequest(addOpponents(3))
 
-        post(BASE_URL, request)
+        post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.id", notNullValue()))
     }
@@ -48,7 +49,7 @@ constructor(private val boardGameService: BoardGameService,
         val opponents = addOpponents(3)
         val playId = addPlay(boardGameId, opponents)
 
-        get("$BASE_URL/$playId/opponents")
+        get("${baseUrl(boardGameId)}/$playId/opponents")
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Int>(opponents.size)))
                 .andExpect(jsonPath("$.[0].id", notNullValue()))
@@ -57,7 +58,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should return 404 when finding opponents for play which not exists`() {
-        get("$BASE_URL/${nextLong()}/opponents")
+        get("${baseUrl(boardGameId)}/${nextLong()}/opponents")
                 .andExpect(status().isNotFound)
     }
 
@@ -68,16 +69,16 @@ constructor(private val boardGameService: BoardGameService,
 
         login()
 
-        get("$BASE_URL/$playId/opponents")
+        get("${baseUrl(boardGameId)}/$playId/opponents")
                 .andExpect(status().isForbidden)
     }
 
     private fun addPlay(boardGameId: Id, opponents: List<AddPlayOpponent>): Id =
-            post(BASE_URL, AddPlayRequest(boardGameId, opponents), IdResponse::class.java).id
+            post(baseUrl(boardGameId), AddPlayRequest(opponents), IdResponse::class.java).id
 
 
     private fun addOpponents(count: Int): List<AddPlayOpponent> =
             randomStrings(count).map { name ->
                 OpponentNameId(name, opponentService.addOpponent(authentication.userId, name))
-            }.mapIndexed{index, (name, id) -> AddPlayOpponent(name, index, id=id) }
+            }.mapIndexed{index, (name, id) -> AddPlayOpponent(name, index, id = id) }
 }

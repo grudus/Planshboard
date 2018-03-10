@@ -3,6 +3,8 @@ package com.grudus.planshboard.plays
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.exceptions.ResourceNotFoundException
+import com.grudus.planshboard.plays.model.AddPlayOpponent
+import com.grudus.planshboard.plays.model.PlayResult
 import com.grudus.planshboard.plays.opponent.Opponent
 import com.grudus.planshboard.plays.opponent.OpponentService
 import org.springframework.beans.factory.annotation.Autowired

@@ -30,7 +30,7 @@ constructor(private val playService: PlayService,
     @ResponseStatus(HttpStatus.CREATED)
     fun addPlay(@RequestBody @Valid addPlayRequest: AddPlayRequest,
                 authenticatedUser: AuthenticatedUser): IdResponse =
-            playService.savePlay(addPlayRequest.boardGameId, addPlayRequest.opponents)
+            playService.savePlay(authenticatedUser.userId, addPlayRequest.boardGameId, addPlayRequest.opponents)
                     .let { id -> IdResponse(id) }
 
 

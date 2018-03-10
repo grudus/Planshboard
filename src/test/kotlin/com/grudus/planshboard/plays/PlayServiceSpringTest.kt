@@ -1,12 +1,15 @@
 package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.AbstractSpringServiceTest
+import com.grudus.planshboard.Tables.PLAYS_RESULTS
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.plays.opponent.AddOpponentRequest
+import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
+import com.grudus.planshboard.utils.randomStrings
 import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -24,36 +27,74 @@ constructor(private val boardGameService: BoardGameService,
         boardGameService.createNew(userId, RandomStringUtils.randomAlphabetic(11))
     }
 
-    @Test
-    fun `should save play`() {
-        val opponentIds = addOpponents(5)
-
-        val id = playService.savePlay(boardGameId, opponentIds)
-
-        Assertions.assertNotNull(id)
-    }
 
     @Test
     fun `should not be able to save play without opponents`() {
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            playService.savePlay(boardGameId, emptyList())
+            playService.savePlay(userId, boardGameId, emptyList())
         }
     }
 
     @Test
-    fun `should be able to save play for the same opponents`() {
-        val opponentIds = addOpponents(4)
+    fun `should insert play when all opponents exists`() {
+        val playOpponents = addOpponentsToDb(5)
+                .mapIndexed { i, (name, id) -> AddPlayOpponent(name, i, id = id) }
 
-        val id1 = playService.savePlay(boardGameId, opponentIds)
-        val id2 = playService.savePlay(boardGameId, opponentIds)
+        val id = playService.savePlay(userId, boardGameId, playOpponents)
 
-        Assertions.assertNotEquals(id1, id2)
+        assertNotNull(id)
+    }
+
+    @Test
+    fun `should insert new opponents and play when no opponent exists`() {
+        val playOpponents = opponentsWithoutDb(3)
+                .mapIndexed { i, (name, _) -> AddPlayOpponent(name, i) }
+
+        val id = playService.savePlay(userId, boardGameId, playOpponents)
+
+        assertNotNull(id)
+
+        playOpponents.forEach { (name) ->
+            assertTrue(opponentService.exists(userId, name))
+        }
+    }
+
+    @Test
+    fun `should insert play when mixed existing opponents and new`() {
+        val playOpponents = (addOpponentsToDb(3) + opponentsWithoutDb(5))
+                .mapIndexed { i, (name, id) -> AddPlayOpponent(name, i, id = id) }
+
+        val id = playService.savePlay(userId, boardGameId, playOpponents)
+
+        assertNotNull(id)
+
+        playOpponents.forEach { (name) ->
+            assertTrue(opponentService.exists(userId, name))
+        }
     }
 
 
-    private fun addOpponents(count: Int = 5): List<Id> =
-            (0 until count).map { RandomStringUtils.randomAlphabetic(11 + it) }
-                    .map { name -> opponentService.addOpponent(userId, AddOpponentRequest(name)) }
+    @Test
+    fun `should save play results`() {
+        val opponentsCount = 5
+        val playOpponents = addOpponentsToDb(opponentsCount)
+                .mapIndexed { i, (name, id) -> AddPlayOpponent(name, i, id = id) }
+
+        playService.savePlay(userId, boardGameId, playOpponents)
+
+        //todo change when create returning method
+        assertEquals(opponentsCount, dsl.fetchCount(PLAYS_RESULTS))
+    }
 
 
+    private fun addOpponentsToDb(count: Int): List<OpponentNameId> =
+            randomStrings(count)
+                    .map { name ->
+                        val id = opponentService.addOpponent(userId, name)
+                        OpponentNameId(name, id)
+                    }
+
+    private fun opponentsWithoutDb(count: Int): List<OpponentNameId> =
+            randomStrings(count)
+                    .map { name -> OpponentNameId(name) }
 }

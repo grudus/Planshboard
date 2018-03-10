@@ -23,12 +23,13 @@ constructor(private val dsl: DSLContext) {
                     .fetchInto(Opponent::class.java)
 
 
-    fun insertPlayOpponents(playId: Id, opponents: List<Id>) {
-        val batchStep = dsl.batch(dsl.insertInto(PLAYS_RESULTS, PLAYS_RESULTS.PLAY_ID, PLAYS_RESULTS.OPPONENT_ID)
-                .values(null as Long?, null))
+    fun savePlayResults(playResults: List<PlayResult>) {
+        val sql = dsl.insertInto(PLAYS_RESULTS, PLAYS_RESULTS.PLAY_ID, PLAYS_RESULTS.OPPONENT_ID, PLAYS_RESULTS.POINTS, PLAYS_RESULTS.POSITION)
+                .values(null as Long?, null, null, null)
+        val batchStep = dsl.batch(sql)
 
-        opponents.forEach { opponentId ->
-            batchStep.bind(playId, opponentId)
+        playResults.forEach { result ->
+            batchStep.bind(result.playId, result.opponentId, result.points, result.position)
         }
 
         batchStep.execute()

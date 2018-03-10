@@ -28,7 +28,7 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `should find all opponents for play`() {
         val opponentIds = addOpponents(3)
-        val playId = addGame(boardGameId, opponentIds)
+        val playId = addPlay(boardGameId, opponentIds)
 
         val opponents = playDao.findOpponentsForPlay(playId)
                 .map { it.id!! }
@@ -41,8 +41,8 @@ constructor(private val playDao: PlayDao,
     fun `should find opponents for specific play when multiple exists`() {
         val play1Count = 5
         val play2Count = 3
-        val play1Id = addGame(boardGameId, addOpponents(play1Count))
-        val play2Id = addGame(boardGameId, addOpponents(play2Count))
+        val play1Id = addPlay(boardGameId, addOpponents(play1Count))
+        val play2Id = addPlay(boardGameId, addOpponents(play2Count))
 
         val opponents1 = playDao.findOpponentsForPlay(play1Id)
         val opponents2 = playDao.findOpponentsForPlay(play2Id)
@@ -67,15 +67,16 @@ constructor(private val playDao: PlayDao,
     }
 
     @Test
-    fun `should insert multiple play opponents`() {
-        val playResultsCount = 3
-        val playId = playDao.insertPlayAlone(boardGameId)
-        val opponentIds = addOpponents(playResultsCount)
+    fun `should insert many play results for multiple plays`() {
+        val playResultCount = 4
+        val playsIds = listOf(playDao.insertPlayAlone(boardGameId), playDao.insertPlayAlone(boardGameId))
+        val playResults = addOpponents(playResultCount)
+                .mapIndexed { index, id -> PlayResult(playsIds[index % 2], id, null, null) }
 
-        playDao.insertPlayOpponents(playId, opponentIds)
+        playDao.savePlayResults(playResults)
 
-        val dbGameResultsCount = dsl.fetchCount(PLAYS_RESULTS)
-        assertEquals(playResultsCount, dbGameResultsCount)
+        val dbPlayResultCount = dsl.fetchCount(PLAYS_RESULTS)
+        assertEquals(playResultCount, dbPlayResultCount)
     }
 
 
@@ -83,11 +84,12 @@ constructor(private val playDao: PlayDao,
             (0 until count).map { randomAlphabetic(11 + it) }
                     .map { name -> opponentDao.addOpponent(userId, name) }
 
-    
-    
-    private fun addGame(boardGameId: Id, opponents: List<Id>): Id {
+
+
+    private fun addPlay(boardGameId: Id, opponents: List<Id>): Id {
         val playId = playDao.insertPlayAlone(boardGameId)
-        playDao.insertPlayOpponents(playId, opponents)
+        val playResults = opponents.map { PlayResult(playId, it, null, null) }
+        playDao.savePlayResults(playResults)
         return playId
     }
 }

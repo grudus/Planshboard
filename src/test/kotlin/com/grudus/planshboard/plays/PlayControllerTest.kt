@@ -5,7 +5,9 @@ import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.plays.opponent.AddOpponentRequest
+import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
+import com.grudus.planshboard.utils.randomStrings
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextLong
 import org.hamcrest.Matchers.hasSize
@@ -70,14 +72,12 @@ constructor(private val boardGameService: BoardGameService,
                 .andExpect(status().isForbidden)
     }
 
-    private fun addPlay(boardGameId: Id, opponents: List<Id>): Id =
+    private fun addPlay(boardGameId: Id, opponents: List<AddPlayOpponent>): Id =
             post(BASE_URL, AddPlayRequest(boardGameId, opponents), IdResponse::class.java).id
 
-    private fun addOpponents(count: Int): List<Id> =
-            (0 until count).map {
-                opponentService.addOpponent(
-                        authentication.userId,
-                        AddOpponentRequest(randomAlphabetic(23))
-                )
-            }
+
+    private fun addOpponents(count: Int): List<AddPlayOpponent> =
+            randomStrings(count).map { name ->
+                OpponentNameId(name, opponentService.addOpponent(authentication.userId, name))
+            }.mapIndexed{index, (name, id) -> AddPlayOpponent(name, index, id=id) }
 }

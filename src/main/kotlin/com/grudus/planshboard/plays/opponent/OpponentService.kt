@@ -12,6 +12,9 @@ constructor(private val opponentDao: OpponentDao) {
     fun addOpponent(userId: Id, addOpponentRequest: AddOpponentRequest) =
             opponentDao.addOpponent(userId, addOpponentRequest.name)
 
+    fun addOpponent(userId: Id, name: String) =
+            addOpponent(userId, AddOpponentRequest(name))
+
     fun addCurrentUserAsOpponent(userId: Id, userName: String) =
             opponentDao.addOpponent(userId, userName, true)
 
@@ -27,4 +30,7 @@ constructor(private val opponentDao: OpponentDao) {
                 .map { it.id!! }
         return allOpponents.containsAll(opponents)
     }
+
+    fun allDoNotExist(currentUserId: Id, names: List<String>): Boolean =
+            names.none { name -> exists(currentUserId, name) }
 }

@@ -76,10 +76,76 @@ constructor(private val playDao: PlayDao,
 
         playDao.savePlayResults(playResults)
 
-        val dbPlayResultCount = dsl.fetchCount(PLAYS_RESULTS)
+        val dbPlayResultCount = countPlayResults(playsIds)
         assertEquals(playResultCount, dbPlayResultCount)
     }
 
+    @Test
+    fun `should find plays for board game`() {
+        val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
+        val playsCount = 4
+        (0 until playsCount).forEach{playDao.insertPlayAlone(boardGameId)}
+        (0 until 3).forEach{playDao.insertPlayAlone(boardGameId2)}
+
+        val plays = playDao.findPlaysForBoardGame(boardGameId)
+
+        assertEquals(playsCount, plays.size)
+    }
+
+    @Test
+    fun `should return empty list when no plays for board game`() {
+        val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
+        (0 until 3).forEach{playDao.insertPlayAlone(boardGameId2)}
+
+        val plays = playDao.findPlaysForBoardGame(boardGameId)
+
+        assertTrue(plays.isEmpty())
+    }
+
+    @Test
+    fun `should find play results for single play`() {
+        addPlay(boardGameDao.create(randomAlphabetic(11), userId), addOpponents(2))
+        val opponentsCount = 3
+        val id = addPlay(boardGameId, addOpponents(opponentsCount))
+
+        val playResults = playDao.findPlayResultsForPlays(listOf(id))
+
+        assertEquals(opponentsCount, playResults.size)
+    }
+
+    @Test
+    fun `should find play results for multiple plays`() {
+        val opponentsCount = 3
+        val id1 = addPlay(boardGameDao.create(randomAlphabetic(11), userId), addOpponents(opponentsCount))
+        val id2 = addPlay(boardGameId, addOpponents(opponentsCount))
+
+
+        val playResults = playDao.findPlayResultsForPlays(listOf(id1, id2))
+
+        assertEquals(opponentsCount * 2, playResults.size)
+    }
+
+    @Test
+    fun `should find specific play results`() {
+       val playId = playDao.insertPlayAlone(boardGameId)
+        val points = listOf(32, 22)
+        val position = listOf(1, 2)
+        val opponents = addOpponents(2)
+        val playResults = (0 until 2).map { 
+            PlayResult(playId, opponents[it], points[it], position[it]) 
+        }
+        playDao.savePlayResults(playResults)
+
+        val dbResults = playDao.findPlayResultsForPlays(listOf(playId))
+                .sortedBy { it.position }
+
+        assertEquals(position[0], dbResults[0].position)
+        assertEquals(points[0], dbResults[0].points)
+        assertEquals(opponents[0], dbResults[0].opponentId)
+        assertEquals(position[1], dbResults[1].position)
+        assertEquals(points[1], dbResults[1].points)
+        assertEquals(opponents[1], dbResults[1].opponentId)
+    }
 
     private fun addOpponents(count: Int = 5): List<Id> =
             (0 until count).map { randomAlphabetic(11 + it) }
@@ -93,4 +159,8 @@ constructor(private val playDao: PlayDao,
         playDao.savePlayResults(playResults)
         return playId
     }
+
+    private fun countPlayResults(playsIds: List<Id>): Int =
+            playDao.findPlayResultsForPlays(playsIds).size
+
 }

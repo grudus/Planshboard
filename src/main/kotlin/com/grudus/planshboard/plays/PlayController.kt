@@ -4,6 +4,7 @@ import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.PlayResponse
 import com.grudus.planshboard.plays.opponent.OpponentDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -35,6 +36,12 @@ constructor(private val playService: PlayService,
             playService.savePlay(authenticatedUser.userId, boardGameId, addPlayRequest.opponents)
                     .let { id -> IdResponse(id) }
 
+
+    @GetMapping("/results")
+    @PreAuthorize("@boardGameSecurityService.hasAccessToBoardGame(#user, #boardGameId)")
+    fun getPlayResults(@PathVariable("boardGameId") boardGameId: Id,
+                       user: AuthenticatedUser): List<PlayResponse> =
+            playService.getPlayResults(user.userId, boardGameId)
 
     @InitBinder("addPlayRequest")
     protected fun initEditBinder(binder: WebDataBinder) {

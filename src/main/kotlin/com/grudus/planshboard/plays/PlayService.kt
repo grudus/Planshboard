@@ -1,10 +1,10 @@
 package com.grudus.planshboard.plays
 
+import com.grudus.planshboard.boardgame.BoardGameNotFoundException
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.exceptions.ResourceNotFoundException
-import com.grudus.planshboard.plays.model.AddPlayOpponent
-import com.grudus.planshboard.plays.model.PlayResult
+import com.grudus.planshboard.plays.model.*
 import com.grudus.planshboard.plays.opponent.Opponent
 import com.grudus.planshboard.plays.opponent.OpponentService
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,6 +28,19 @@ constructor(private val playDao: PlayDao,
                     ?.let { play -> boardGameService.belongsToAnotherUser(userId, play.boardGameId) }
                     ?: false
 
+
+    fun getPlayResults(userId: Id, boardGameId: Id): List<PlayResponse> {
+        if (!boardGameService.existsForUser(userId, boardGameId))
+            throw BoardGameNotFoundException("Cannot find board game with id [$boardGameId]")
+
+        val plays: List<Play> = playDao.findPlaysForBoardGame(boardGameId)
+        val playResults: List<PlayOpponentsDto> = playDao.findPlayResultsForPlays(plays.map { it.id })
+        val playResultsPerPlay = playResults.groupBy({ it.playId }, { PlayOpponentsResponse(it) })
+
+        return plays.map { play ->
+            PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!)
+        }
+    }
 
     fun savePlay(userId: Id,
                  boardGameId: Id,

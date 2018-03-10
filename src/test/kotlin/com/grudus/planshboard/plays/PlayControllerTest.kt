@@ -24,9 +24,7 @@ class PlayControllerTest
 constructor(private val boardGameService: BoardGameService,
             private val opponentService: OpponentService) : AbstractControllerTest() {
 
-    private val boardGameId: Id by lazy {
-        boardGameService.createNew(authentication.userId, randomAlphabetic(11))
-    }
+    private val boardGameId: Id by lazy { newBoardGame() }
 
     private fun baseUrl(boardGameId: Id) = "/api/board-games/$boardGameId/plays"
 
@@ -73,6 +71,62 @@ constructor(private val boardGameService: BoardGameService,
                 .andExpect(status().isForbidden)
     }
 
+
+    @Test
+    fun `should find play results`() {
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(2)))
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(1)))
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(3)))
+                .andExpect(jsonPath("$.[*].date", notNullValue()))
+                .andExpect(jsonPath("$.[*].id", notNullValue()))
+                .andExpect(jsonPath("$.[0].results", hasSize<Int>(3)))
+                .andExpect(jsonPath("$.[1].results", hasSize<Int>(2)))
+                .andExpect(jsonPath("$.[2].results", hasSize<Int>(1)))
+    }
+
+    @Test
+    fun `should find play result for game`() {
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+        post(baseUrl(newBoardGame()), AddPlayRequest(addOpponents(2)))
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(1)))
+                .andExpect(jsonPath("$.[0].results", hasSize<Int>(3)))
+    }
+
+    @Test
+    fun `should return empty list when no plays for board game`() {
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(0)))
+    }
+
+    @Test
+    fun `should not be able to see someone else's play results`() {
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+        login()
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `should return 404 when finding play results for non existing board game`() {
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+
+        get("${baseUrl(nextLong())}/results")
+                .andExpect(status().isNotFound)
+    }
+
+    private fun newBoardGame() =
+            boardGameService.createNew(authentication.userId, randomAlphabetic(11))
+
+
     private fun addPlay(boardGameId: Id, opponents: List<AddPlayOpponent>): Id =
             post(baseUrl(boardGameId), AddPlayRequest(opponents), IdResponse::class.java).id
 
@@ -80,5 +134,5 @@ constructor(private val boardGameService: BoardGameService,
     private fun addOpponents(count: Int): List<AddPlayOpponent> =
             randomStrings(count).map { name ->
                 OpponentNameId(name, opponentService.addOpponent(authentication.userId, name))
-            }.mapIndexed{index, (name, id) -> AddPlayOpponent(name, index, id = id) }
+            }.mapIndexed { index, (name, id) -> AddPlayOpponent(name, index, id = id) }
 }

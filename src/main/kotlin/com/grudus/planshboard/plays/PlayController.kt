@@ -33,7 +33,7 @@ constructor(private val playService: PlayService,
     fun addPlay(@RequestBody @Valid addPlayRequest: AddPlayRequest,
                 @PathVariable("boardGameId") boardGameId: Id,
                 authenticatedUser: AuthenticatedUser): IdResponse =
-            playService.savePlay(authenticatedUser.userId, boardGameId, addPlayRequest.opponents)
+            playService.savePlay(authenticatedUser.userId, boardGameId, addPlayRequest.results)
                     .let { id -> IdResponse(id) }
 
 

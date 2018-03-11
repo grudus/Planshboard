@@ -1,9 +1,8 @@
 package com.grudus.planshboard.plays
 
-import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.RestKeys
-import com.grudus.planshboard.plays.model.AddPlayOpponent
 import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,9 +18,9 @@ constructor(private val authService: AuthenticationService,
 
     override fun validate(target: Any?, errors: Errors?) {
         val request = target as AddPlayRequest
-        val (opponentsWithId, opponentsWithoutId) = request.opponents.partition { it.id != null }
+        val (opponentsWithId, opponentsWithoutId) = request.results.partition { it.opponentId != null }
 
-        if (request.opponents.isEmpty()) {
+        if (request.results.isEmpty()) {
             errors?.reject(RestKeys.NO_OPPONENTS)
             return
         }
@@ -37,16 +36,15 @@ constructor(private val authService: AuthenticationService,
             AddPlayRequest::class.java.isAssignableFrom(clazz)
 
 
-
-    private fun allOpponentsWithoutIdDoNotExists(opponents: List<AddPlayOpponent>) =
-            opponents.map { it.name }
+    private fun allOpponentsWithoutIdDoNotExists(results: List<AddPlayResult>) =
+            results.map { it.opponentName }
                     .let { names ->
                         opponentService.allDoNotExist(authService.currentUserId(), names)
                     }
 
 
-    private fun allOpponentsWithIdExist(opponents: List<AddPlayOpponent>) =
-            opponents.map { it.id!! }
+    private fun allOpponentsWithIdExist(results: List<AddPlayResult>) =
+            results.map { it.opponentId!! }
                     .let { ids ->
                         opponentService.allExists(authService.currentUserId(), ids)
                     }

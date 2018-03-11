@@ -3,7 +3,7 @@ package com.grudus.planshboard.plays
 import com.grudus.planshboard.AbstractSpringServiceTest
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.plays.model.AddPlayOpponent
+import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.utils.randomStrings
@@ -48,7 +48,7 @@ constructor(private val boardGameService: BoardGameService,
     @Test
     fun `should insert new opponents and play when no opponent exists`() {
         val playOpponents = opponentsWithoutDb(3)
-                .mapIndexed { i, (name, _) -> AddPlayOpponent(name, i) }
+                .mapIndexed { i, (name, _) -> AddPlayResult(name, i) }
 
         val id = playService.savePlay(userId, boardGameId, playOpponents)
 
@@ -62,7 +62,7 @@ constructor(private val boardGameService: BoardGameService,
     @Test
     fun `should insert play when mixed existing opponents and new`() {
         val playOpponents = (addOpponentsToDb(3) + opponentsWithoutDb(5))
-                .mapIndexed { i, (name, id) -> AddPlayOpponent(name, i, id = id) }
+                .mapIndexed { i, (name, id) -> AddPlayResult(name, i, opponentId = id) }
 
         val id = playService.savePlay(userId, boardGameId, playOpponents)
 
@@ -106,8 +106,8 @@ constructor(private val boardGameService: BoardGameService,
         val points = listOf(32, 22)
         val position = listOf(1, 2)
         val names = listOf(randomAlphabetic(11), randomAlphabetic(11))
-        val playOpponent1 = AddPlayOpponent(names[0], position[0], points[0])
-        val playOpponent2 = AddPlayOpponent(names[1], position[1], points[1])
+        val playOpponent1 = AddPlayResult(names[0], position[0], points[0])
+        val playOpponent2 = AddPlayResult(names[1], position[1], points[1])
 
         playService.savePlay(userId, boardGameId, listOf(playOpponent1, playOpponent2))
 
@@ -125,7 +125,7 @@ constructor(private val boardGameService: BoardGameService,
     }
 
     private fun randomPlayOpponents(count: Int) = addOpponentsToDb(count)
-            .mapIndexed { i, (name, id) -> AddPlayOpponent(name, i, id = id) }
+            .mapIndexed { i, (name, id) -> AddPlayResult(name, i, opponentId = id) }
 
 
     private fun addOpponentsToDb(count: Int): List<OpponentNameId> =

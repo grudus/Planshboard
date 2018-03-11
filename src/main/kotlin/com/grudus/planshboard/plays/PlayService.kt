@@ -44,24 +44,24 @@ constructor(private val playDao: PlayDao,
 
     fun savePlay(userId: Id,
                  boardGameId: Id,
-                 opponents: List<AddPlayOpponent>): Id {
-        require(opponents.isNotEmpty()) { "Cannot save play without any opponent" }
+                 results: List<AddPlayResult>): Id {
+        require(results.isNotEmpty()) { "Cannot save play without any opponent" }
 
         val playId = playDao.insertPlayAlone(boardGameId)
-        addOpponentsToPlay(userId, playId, opponents)
+        addOpponentsToPlay(userId, playId, results)
 
         return playId
     }
 
 
-    private fun addOpponentsToPlay(userId: Id, playId: Id, opponents: List<AddPlayOpponent>) {
-        val (existingOpponents, newOpponents) = opponents.partition { it.id != null }
+    private fun addOpponentsToPlay(userId: Id, playId: Id, results: List<AddPlayResult>) {
+        val (existingOpponents, newOpponents) = results.partition { it.opponentId != null }
         val insertedOpponents = newOpponents.map {
-            it.copy(id = opponentService.addOpponent(userId, it.name))
+            it.copy(opponentId = opponentService.addOpponent(userId, it.opponentName))
         }
 
         val playResults = (existingOpponents + insertedOpponents).map { opponent ->
-            PlayResult(playId, opponent.id!!, opponent.points, opponent.position)
+            PlayResult(playId, opponent.opponentId!!, opponent.points, opponent.position)
         }
 
         playDao.savePlayResults(playResults)

@@ -1,11 +1,10 @@
 package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.MockitoExtension
-import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.RestKeys
-import com.grudus.planshboard.plays.model.AddPlayOpponent
 import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AuthenticationService
 import com.grudus.planshboard.utils.ValidatorUtils.assertErrorCodes
@@ -13,11 +12,13 @@ import com.grudus.planshboard.utils.ValidatorUtils.getErrors
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextInt
 import org.apache.commons.lang3.RandomUtils.nextLong
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.*
+import org.mockito.ArgumentMatchers.anyList
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 
@@ -93,7 +94,6 @@ class AddPlayRequestValidatorTest {
 
 
 
-    private fun randomOpponents(name: String = randomAlphabetic(11), id: Id? = null)
-            = listOf(AddPlayOpponent(name, nextInt(), nextInt(), id))
+    private fun randomOpponents(name: String = randomAlphabetic(11), id: Id? = null) = listOf(AddPlayResult(name, nextInt(), nextInt(), id))
 
 }

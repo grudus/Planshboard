@@ -4,8 +4,8 @@ import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
-import com.grudus.planshboard.plays.model.AddPlayOpponent
 import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.utils.randomStrings
@@ -127,12 +127,12 @@ constructor(private val boardGameService: BoardGameService,
             boardGameService.createNew(authentication.userId, randomAlphabetic(11))
 
 
-    private fun addPlay(boardGameId: Id, opponents: List<AddPlayOpponent>): Id =
-            post(baseUrl(boardGameId), AddPlayRequest(opponents), IdResponse::class.java).id
+    private fun addPlay(boardGameId: Id, results: List<AddPlayResult>): Id =
+            post(baseUrl(boardGameId), AddPlayRequest(results), IdResponse::class.java).id
 
 
-    private fun addOpponents(count: Int): List<AddPlayOpponent> =
+    private fun addOpponents(count: Int): List<AddPlayResult> =
             randomStrings(count).map { name ->
                 OpponentNameId(name, opponentService.addOpponent(authentication.userId, name))
-            }.mapIndexed { index, (name, id) -> AddPlayOpponent(name, index, id = id) }
+            }.mapIndexed { index, (name, id) -> AddPlayResult(name, index, opponentId = id) }
 }

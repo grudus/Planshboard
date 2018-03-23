@@ -1,18 +1,19 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.AbstractControllerTest
+import com.grudus.planshboard.USERS_URL
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 internal class UserControllerTest : AbstractControllerTest() {
 
-    private val BASE_URL = "/api/users"
+    private val baseUrl = USERS_URL
 
     @Test
     fun `should get currently logged user`() {
         login()
-        get("$BASE_URL/current")
+        get("$baseUrl/current")
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.name").value(authentication.user.name))
     }

@@ -44,11 +44,9 @@ constructor(private val playDao: PlayDao,
 
     fun savePlay(userId: Id,
                  boardGameId: Id,
-                 results: List<AddPlayResult>): Id {
-        require(results.isNotEmpty()) { "Cannot save play without any opponent" }
-
-        val playId = playDao.insertPlayAlone(boardGameId)
-        addOpponentsToPlay(userId, playId, results)
+                 request: AddPlayRequest): Id {
+        val playId = playDao.insertPlayAlone(boardGameId, request.date)
+        addOpponentsToPlay(userId, playId, request.results)
 
         return playId
     }

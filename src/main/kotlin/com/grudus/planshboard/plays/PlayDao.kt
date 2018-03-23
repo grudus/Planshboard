@@ -9,6 +9,9 @@ import com.grudus.planshboard.plays.opponent.Opponent
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalDateTime.now
 
 
 @Repository
@@ -38,9 +41,9 @@ constructor(private val dsl: DSLContext) {
         batchStep.execute()
     }
 
-    fun insertPlayAlone(boardGameId: Id): Id =
-            dsl.insertInto(PLAYS, PLAYS.BOARDGAME_ID)
-                    .values(boardGameId)
+    fun insertPlayAlone(boardGameId: Id, date: LocalDateTime = now()): Id =
+            dsl.insertInto(PLAYS, PLAYS.BOARDGAME_ID, PLAYS.DATE)
+                    .values(boardGameId, date)
                     .returning()
                     .fetchOne()
                     .id

@@ -21,7 +21,7 @@ constructor(private val authService: AuthenticationService,
         val (opponentsWithId, opponentsWithoutId) = request.results.partition { it.opponentId != null }
 
         if (request.results.isEmpty()) {
-            errors?.reject(RestKeys.NO_OPPONENTS)
+            errors?.reject(RestKeys.NO_RESULTS)
             return
         }
 

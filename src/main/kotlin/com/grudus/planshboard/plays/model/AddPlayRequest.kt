@@ -1,3 +1,6 @@
 package com.grudus.planshboard.plays.model
 
-class AddPlayRequest(val results: List<AddPlayResult>)
+import java.time.LocalDateTime
+import java.time.LocalDateTime.now
+
+class AddPlayRequest(val results: List<AddPlayResult>, val date: LocalDateTime = now())

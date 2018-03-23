@@ -1,9 +1,12 @@
 package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.AbstractControllerTest
+import com.grudus.planshboard.OPPONENTS_URL
+import com.grudus.planshboard.playsUrlPattern
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
+import com.grudus.planshboard.commons.RestKeys.NO_RESULTS
 import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
@@ -11,11 +14,11 @@ import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.utils.randomStrings
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextLong
-import org.hamcrest.Matchers.hasSize
-import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -25,8 +28,9 @@ constructor(private val boardGameService: BoardGameService,
             private val opponentService: OpponentService) : AbstractControllerTest() {
 
     private val boardGameId: Id by lazy { newBoardGame() }
+    private val opponentsUrl = OPPONENTS_URL
 
-    private fun baseUrl(boardGameId: Id) = "/api/board-games/$boardGameId/plays"
+    private fun baseUrl(boardGameId: Id) = playsUrlPattern(boardGameId)
 
     @BeforeEach
     fun init() {
@@ -40,6 +44,30 @@ constructor(private val boardGameService: BoardGameService,
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.id", notNullValue()))
+    }
+
+    @Test
+    fun `should not be able to save play without results`() {
+        val request = AddPlayRequest(emptyList())
+
+        post(baseUrl(boardGameId), request)
+                .andExpect(status().isBadRequest)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(jsonPath("codes", hasItem(NO_RESULTS)))
+    }
+
+    @Test
+    fun `should create opponent if saving play with opponent without id`() {
+        val opponentName = randomAlphabetic(11)
+        val request = AddPlayRequest(listOf(AddPlayResult(opponentName, 1)))
+
+        post(baseUrl(boardGameId), request)
+                .andExpect(status().isCreated)
+
+        get(opponentsUrl)
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(2)))
+                .andExpect(jsonPath("$.[*].name", hasItem(opponentName)))
     }
 
     @Test

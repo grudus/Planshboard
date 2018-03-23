@@ -1,6 +1,7 @@
 package com.grudus.planshboard.boardgame
 
 import com.grudus.planshboard.AbstractControllerTest
+import com.grudus.planshboard.BOARD_GAMES_URL
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.utils.RequestParam
@@ -14,7 +15,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class BoardGameControllerTest : AbstractControllerTest() {
 
-    private val BASE_URL = "/api/board-games"
+    private val baseUrl = BOARD_GAMES_URL
 
     @BeforeEach
     fun init() {
@@ -25,7 +26,7 @@ class BoardGameControllerTest : AbstractControllerTest() {
     fun `should save new game`() {
         val request = AddBoardGameRequest(randomAlphabetic(11))
 
-        post(BASE_URL, request)
+        post(baseUrl, request)
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.id", notNullValue()))
     }
@@ -35,10 +36,10 @@ class BoardGameControllerTest : AbstractControllerTest() {
     fun `should not save game when already exists for user`() {
         val name = randomAlphabetic(11)
 
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
                 .andExpect(status().isCreated)
 
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(RestKeys.NAME_EXISTS)))
     }
@@ -47,12 +48,12 @@ class BoardGameControllerTest : AbstractControllerTest() {
     fun `should save game when exists for another user`() {
         val name = randomAlphabetic(11)
 
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
                 .andExpect(status().isCreated)
 
         login()
 
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
                 .andExpect(status().isCreated)
     }
 
@@ -60,16 +61,16 @@ class BoardGameControllerTest : AbstractControllerTest() {
     fun `should find all board games for user`() {
         val count = 3
         (0 until count).map { randomAlphabetic(5 + it) }
-                .forEach { post(BASE_URL, AddBoardGameRequest(it)) }
+                .forEach { post(baseUrl, AddBoardGameRequest(it)) }
 
-        get(BASE_URL)
+        get(baseUrl)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Any>(count)))
     }
 
     @Test
     fun `should return empty list when no games for user`() {
-        get(BASE_URL)
+        get(baseUrl)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Any>(0)))
     }
@@ -77,12 +78,12 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should find all only for given user`() {
         (0 until 5).map { randomAlphabetic(5 + it) }
-                .forEach { post(BASE_URL, AddBoardGameRequest(it)) }
+                .forEach { post(baseUrl, AddBoardGameRequest(it)) }
 
         login()
-        post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)))
+        post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)))
 
-        get(BASE_URL)
+        get(baseUrl)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Any>(1)))
     }
@@ -90,9 +91,9 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should check if board game exists`() {
         val name = randomAlphabetic(13)
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
 
-        get("$BASE_URL/exists", RequestParam("name", name))
+        get("$baseUrl/exists", RequestParam("name", name))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.exists").value(true))
     }
@@ -100,9 +101,9 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should detect board game not exist`() {
         val name = randomAlphabetic(13)
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
 
-        get("$BASE_URL/exists", RequestParam("name", randomAlphabetic(11)))
+        get("$baseUrl/exists", RequestParam("name", randomAlphabetic(11)))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.exists").value(false))
     }
@@ -110,11 +111,11 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should detect board game not exist if exists for different user`() {
         val name = randomAlphabetic(13)
-        post(BASE_URL, AddBoardGameRequest(name))
+        post(baseUrl, AddBoardGameRequest(name))
 
         login()
 
-        get("$BASE_URL/exists", RequestParam("name", name))
+        get("$baseUrl/exists", RequestParam("name", name))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.exists").value(false))
     }
@@ -123,43 +124,43 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should delete board game`() {
         val name = randomAlphabetic(11)
-        val id = post(BASE_URL, AddBoardGameRequest(name), IdResponse::class.java).id
+        val id = post(baseUrl, AddBoardGameRequest(name), IdResponse::class.java).id
 
-        delete("$BASE_URL/$id")
+        delete("$baseUrl/$id")
                 .andExpect(status().isNoContent)
 
-        get("$BASE_URL/exists", RequestParam("name", name))
+        get("$baseUrl/exists", RequestParam("name", name))
                 .andExpect(jsonPath("$.exists").value(false))
     }
 
 
     @Test
     fun `should do nothing when delete non existing game `() {
-        post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
 
-        delete("$BASE_URL/${nextLong()}")
+        delete("$baseUrl/${nextLong()}")
                 .andExpect(status().isNoContent)
 
-        get(BASE_URL)
+        get(baseUrl)
                 .andExpect(jsonPath("$.[*]", hasSize<Any>(1)))
     }
 
     @Test
     fun `should not be able to delete someone else's board game`() {
-        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val id = post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
 
         login()
 
-        delete("$BASE_URL/$id")
+        delete("$baseUrl/$id")
                 .andExpect(status().isForbidden)
     }
 
     @Test
     fun `should update game's name`() {
-        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val id = post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
         val newName = randomAlphabetic(14)
 
-        put("$BASE_URL/$id", EditBoardGameRequest(newName))
+        put("$baseUrl/$id", EditBoardGameRequest(newName))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.name").value(newName))
     }
@@ -167,30 +168,30 @@ class BoardGameControllerTest : AbstractControllerTest() {
 
     @Test
     fun `should not be able to update not existing game`() {
-        post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
         val newName = randomAlphabetic(14)
 
-        put("$BASE_URL/${nextLong()}", EditBoardGameRequest(newName))
+        put("$baseUrl/${nextLong()}", EditBoardGameRequest(newName))
                 .andExpect(status().isNotFound)
     }
 
     @Test
     fun `should not be able to update someone else's game`() {
-        val id = post(BASE_URL, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
+        val id = post(baseUrl, AddBoardGameRequest(randomAlphabetic(11)), IdResponse::class.java).id
         val newName = randomAlphabetic(14)
 
         login()
 
-        put("$BASE_URL/$id", EditBoardGameRequest(newName))
+        put("$baseUrl/$id", EditBoardGameRequest(newName))
                 .andExpect(status().isForbidden)
     }
 
     @Test
     fun `should find by id`() {
         val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
-        val id = post(BASE_URL, gameRequest, IdResponse::class.java).id
+        val id = post(baseUrl, gameRequest, IdResponse::class.java).id
 
-        get("$BASE_URL/$id")
+        get("$baseUrl/$id")
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value(gameRequest.name))
@@ -199,9 +200,9 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should return 404 when accessing not existing board game`() {
         val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
-        post(BASE_URL, gameRequest, IdResponse::class.java).id
+        post(baseUrl, gameRequest, IdResponse::class.java).id
 
-        get("$BASE_URL/${nextLong()}")
+        get("$baseUrl/${nextLong()}")
                 .andExpect(status().isNotFound)
     }
 
@@ -209,11 +210,11 @@ class BoardGameControllerTest : AbstractControllerTest() {
     @Test
     fun `should not be able to get someone else's board game `() {
         val gameRequest = AddBoardGameRequest(randomAlphabetic(11))
-        val id = post(BASE_URL, gameRequest, IdResponse::class.java).id
+        val id = post(baseUrl, gameRequest, IdResponse::class.java).id
 
         login()
 
-        get("$BASE_URL/$id")
+        get("$baseUrl/$id")
                 .andExpect(status().isForbidden)
     }
 

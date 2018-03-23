@@ -10,7 +10,7 @@ object RestKeys {
     const val EMPTY_NAME = "NAME.EMPTY"
     const val NAME_EXISTS = "NAME.EXISTS"
     const val ELEMENT_NOT_FOUND = "ELEMENT.NOT_FOUND"
-    const val NO_OPPONENTS: String = "OPPONENTS.EMPTY"
+    const val NO_RESULTS: String = "RESULTS.EMPTY"
     const val BOARD_GAME_NOT_EXISTS: String = "BOARD_GAME.NOT_EXISTS"
     const val OPPONENTS_NOT_EXISTS: String = "OPPONENTS.NOT_EXIST"
     const val OPPONENTS_EXISTS: String = "OPPONENTS.EXISTS"

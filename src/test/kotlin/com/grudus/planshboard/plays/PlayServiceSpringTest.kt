@@ -3,6 +3,7 @@ package com.grudus.planshboard.plays
 import com.grudus.planshboard.AbstractSpringServiceTest
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
@@ -30,17 +31,10 @@ constructor(private val boardGameService: BoardGameService,
 
 
     @Test
-    fun `should not be able to save play without opponents`() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            playService.savePlay(userId, boardGameId, emptyList())
-        }
-    }
-
-    @Test
     fun `should insert play when all opponents exists`() {
         val playOpponents = randomPlayOpponents(5)
 
-        val id = playService.savePlay(userId, boardGameId, playOpponents)
+        val id = playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
 
         assertNotNull(id)
     }
@@ -50,7 +44,7 @@ constructor(private val boardGameService: BoardGameService,
         val playOpponents = opponentsWithoutDb(3)
                 .mapIndexed { i, (name, _) -> AddPlayResult(name, i) }
 
-        val id = playService.savePlay(userId, boardGameId, playOpponents)
+        val id = playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
 
         assertNotNull(id)
 
@@ -64,7 +58,7 @@ constructor(private val boardGameService: BoardGameService,
         val playOpponents = (addOpponentsToDb(3) + opponentsWithoutDb(5))
                 .mapIndexed { i, (name, id) -> AddPlayResult(name, i, opponentId = id) }
 
-        val id = playService.savePlay(userId, boardGameId, playOpponents)
+        val id = playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
 
         assertNotNull(id)
 
@@ -79,7 +73,7 @@ constructor(private val boardGameService: BoardGameService,
         val opponentsCount = 5
         val playOpponents = randomPlayOpponents(opponentsCount)
 
-        playService.savePlay(userId, boardGameId, playOpponents)
+        playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
 
         val opponentsCountForPlay = playService.getPlayResults(userId, boardGameId)[0].results.size
         assertEquals(opponentsCount, opponentsCountForPlay)
@@ -91,9 +85,9 @@ constructor(private val boardGameService: BoardGameService,
         val playOpponents = randomPlayOpponents(count)
         val playOpponents2 = randomPlayOpponents(count+1)
 
-        playService.savePlay(userId, boardGameId, playOpponents)
-        playService.savePlay(userId, boardGameId, playOpponents)
-        playService.savePlay(userId, boardGameService.createNew(userId, "a"), playOpponents2)
+        playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
+        playService.savePlay(userId, boardGameId, AddPlayRequest(playOpponents))
+        playService.savePlay(userId, boardGameService.createNew(userId, "a"), AddPlayRequest(playOpponents2))
 
         val playResults = playService.getPlayResults(userId, boardGameId)
 
@@ -109,7 +103,7 @@ constructor(private val boardGameService: BoardGameService,
         val playOpponent1 = AddPlayResult(names[0], position[0], points[0])
         val playOpponent2 = AddPlayResult(names[1], position[1], points[1])
 
-        playService.savePlay(userId, boardGameId, listOf(playOpponent1, playOpponent2))
+        playService.savePlay(userId, boardGameId, AddPlayRequest(listOf(playOpponent1, playOpponent2)))
 
         val results = playService.getPlayResults(userId, boardGameId)[0].results
                 .sortedBy { it.position }

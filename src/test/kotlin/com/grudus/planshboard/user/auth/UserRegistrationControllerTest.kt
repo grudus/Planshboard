@@ -1,6 +1,7 @@
 package com.grudus.planshboard.user.auth
 
 import com.grudus.planshboard.AbstractControllerTest
+import com.grudus.planshboard.USERS_AUTH_REGISTRATION_URL
 import com.grudus.planshboard.commons.RestKeys.EMPTY_PASSWORD
 import com.grudus.planshboard.commons.RestKeys.EMPTY_USERNAME
 import com.grudus.planshboard.commons.RestKeys.USERNAME_EXISTS
@@ -20,12 +21,12 @@ internal class UserRegistrationControllerTest
 @Autowired
 constructor(private val userService: UserService) : AbstractControllerTest() {
 
-    private val BASE_URL = "/api/auth/register"
+    private val baseUrl = USERS_AUTH_REGISTRATION_URL
 
     @Test
     fun `should create user without authentication`() {
         val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.id", notNullValue()))
 
@@ -35,7 +36,7 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should not create user with empty username`() {
         val user = AddUserRequest("", randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(EMPTY_USERNAME)))
 
@@ -45,7 +46,7 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should not create user with empty password`() {
         val user = AddUserRequest(randomAlphabetic(11), "\t")
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(EMPTY_PASSWORD)))
 
@@ -56,7 +57,7 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     fun `should not create user when already exists`() {
         login()
         val user = AddUserRequest(authentication.user.name, randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(USERNAME_EXISTS)))
     }
@@ -64,9 +65,9 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should check if username already exists`() {
         val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
 
-        getWithoutAuth("$BASE_URL/exists", RequestParam("username", user.username))
+        getWithoutAuth("$baseUrl/exists", RequestParam("username", user.username))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.exists").value(true))
     }
@@ -75,9 +76,9 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should detect username doesn't exists`() {
         val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
 
-        getWithoutAuth("$BASE_URL/exists", RequestParam("username", randomAlphabetic(12)))
+        getWithoutAuth("$baseUrl/exists", RequestParam("username", randomAlphabetic(12)))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.exists").value(false))
     }
@@ -85,9 +86,9 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should return 400 when checking if user exists without username`() {
         val user = AddUserRequest(randomAlphabetic(11), randomAlphabetic(11))
-        postWithoutAuth(BASE_URL, user)
+        postWithoutAuth(baseUrl, user)
 
-        getWithoutAuth("$BASE_URL/exists")
+        getWithoutAuth("$baseUrl/exists")
                 .andExpect(status().isBadRequest)
     }
 }

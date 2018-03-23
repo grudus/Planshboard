@@ -61,7 +61,7 @@ class AddPlayRequestValidatorTest {
         validator.validate(request, errors)
 
         assertEquals(1, errors.errorCount)
-        assertErrorCodes(errors, RestKeys.NO_OPPONENTS)
+        assertErrorCodes(errors, RestKeys.NO_RESULTS)
     }
 
     @Test

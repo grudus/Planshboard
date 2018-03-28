@@ -12,6 +12,7 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDateTime
 
 class PlayDaoTest
 @Autowired
@@ -84,8 +85,8 @@ constructor(private val playDao: PlayDao,
     fun `should find plays for board game`() {
         val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
         val playsCount = 4
-        (0 until playsCount).forEach{playDao.insertPlayAlone(boardGameId)}
-        (0 until 3).forEach{playDao.insertPlayAlone(boardGameId2)}
+        repeat(playsCount) { playDao.insertPlayAlone(boardGameId) }
+        repeat(3) { playDao.insertPlayAlone(boardGameId2) }
 
         val plays = playDao.findPlaysForBoardGame(boardGameId)
 
@@ -95,7 +96,7 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `should return empty list when no plays for board game`() {
         val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
-        (0 until 3).forEach{playDao.insertPlayAlone(boardGameId2)}
+        repeat(3) { playDao.insertPlayAlone(boardGameId2) }
 
         val plays = playDao.findPlaysForBoardGame(boardGameId)
 
@@ -119,20 +120,52 @@ constructor(private val playDao: PlayDao,
         val id1 = addPlay(boardGameDao.create(randomAlphabetic(11), userId), addOpponents(opponentsCount))
         val id2 = addPlay(boardGameId, addOpponents(opponentsCount))
 
-
         val playResults = playDao.findPlayResultsForPlays(listOf(id1, id2))
 
         assertEquals(opponentsCount * 2, playResults.size)
     }
 
     @Test
+    fun `should insert with note`() {
+        val note = randomAlphabetic(11)
+        playDao.insertPlayAlone(boardGameId, LocalDateTime.now(), note)
+        playDao.insertPlayAlone(boardGameId, LocalDateTime.now())
+
+        val plays = playDao.findPlaysForBoardGame(boardGameId)
+                .sortedBy { it.id }
+
+        assertEquals(note, plays[0].note)
+        assertNull(plays[1].note)
+    }
+
+    @Test
+    fun `should insert with date in past`() {
+        val date = LocalDateTime.now().minusDays(5)
+        playDao.insertPlayAlone(boardGameId, date)
+
+        val play = playDao.findPlaysForBoardGame(boardGameId)[0]
+
+        assertEquals(date, play.date)
+    }
+
+    @Test
+    fun `should insert with today's date when no date specified`() {
+        val timeBeforeInsert = LocalDateTime.now().minusSeconds(10)
+        playDao.insertPlayAlone(boardGameId)
+
+        val play = playDao.findPlaysForBoardGame(boardGameId)[0]
+
+        assertTrue(play.date.isAfter(timeBeforeInsert))
+    }
+
+    @Test
     fun `should find specific play results`() {
-       val playId = playDao.insertPlayAlone(boardGameId)
+        val playId = playDao.insertPlayAlone(boardGameId)
         val points = listOf(32, 22)
         val position = listOf(1, 2)
         val opponents = addOpponents(2)
-        val playResults = (0 until 2).map { 
-            PlayResult(playId, opponents[it], points[it], position[it]) 
+        val playResults = (0 until 2).map {
+            PlayResult(playId, opponents[it], points[it], position[it])
         }
         playDao.savePlayResults(playResults)
 
@@ -150,7 +183,6 @@ constructor(private val playDao: PlayDao,
     private fun addOpponents(count: Int = 5): List<Id> =
             (0 until count).map { randomAlphabetic(11 + it) }
                     .map { name -> opponentDao.addOpponent(userId, name) }
-
 
 
     private fun addPlay(boardGameId: Id, opponents: List<Id>): Id {

@@ -38,14 +38,14 @@ constructor(private val playDao: PlayDao,
         val playResultsPerPlay = playResults.groupBy({ it.playId }, { PlayOpponentsResponse(it) })
 
         return plays.map { play ->
-            PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!)
+            PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!, play.note)
         }
     }
 
     fun savePlay(userId: Id,
                  boardGameId: Id,
                  request: AddPlayRequest): Id {
-        val playId = playDao.insertPlayAlone(boardGameId, request.date)
+        val playId = playDao.insertPlayAlone(boardGameId, request.date, request.note)
         addOpponentsToPlay(userId, playId, request.results)
 
         return playId

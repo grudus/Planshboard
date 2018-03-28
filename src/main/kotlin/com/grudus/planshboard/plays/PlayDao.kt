@@ -41,9 +41,9 @@ constructor(private val dsl: DSLContext) {
         batchStep.execute()
     }
 
-    fun insertPlayAlone(boardGameId: Id, date: LocalDateTime = now()): Id =
-            dsl.insertInto(PLAYS, PLAYS.BOARDGAME_ID, PLAYS.DATE)
-                    .values(boardGameId, date)
+    fun insertPlayAlone(boardGameId: Id, date: LocalDateTime = now(), note: String? = null): Id =
+            dsl.insertInto(PLAYS, PLAYS.BOARDGAME_ID, PLAYS.DATE, PLAYS.NOTE)
+                    .values(boardGameId, date, note)
                     .returning()
                     .fetchOne()
                     .id

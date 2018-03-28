@@ -2,7 +2,6 @@ package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.OPPONENTS_URL
-import com.grudus.planshboard.playsUrlPattern
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
@@ -11,6 +10,7 @@ import com.grudus.planshboard.plays.model.AddPlayRequest
 import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
+import com.grudus.planshboard.playsUrlPattern
 import com.grudus.planshboard.utils.randomStrings
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextLong
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime.now
 
 class PlayControllerTest
 @Autowired
@@ -54,6 +55,33 @@ constructor(private val boardGameService: BoardGameService,
                 .andExpect(status().isBadRequest)
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(jsonPath("codes", hasItem(NO_RESULTS)))
+    }
+
+    @Test
+    fun `should be able to create play with date in past`() {
+        val date = now().minusDays(5)
+        val request = AddPlayRequest(addOpponents(3), date)
+
+        post(baseUrl(boardGameId), request)
+                .andExpect(status().isCreated)
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[0].date").value(date.toString()))
+                .andExpect(jsonPath("$.[0].note", nullValue()))
+    }
+
+    @Test
+    fun `should be able to create lay with note`() {
+        val note = randomAlphabetic(11)
+        val request = AddPlayRequest(addOpponents(2), now(), note)
+
+        post(baseUrl(boardGameId), request)
+                .andExpect(status().isCreated)
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[0].note").value(note))
     }
 
     @Test

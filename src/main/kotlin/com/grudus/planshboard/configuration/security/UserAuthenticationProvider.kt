@@ -27,7 +27,7 @@ constructor(private val userService: UserService, private val passwordEncoder: P
         val password = credentials.toString().trim({ it <= ' ' })
 
         val user = userService.findByUsername(username.trim { it <= ' ' })
-                ?: throw UsernameNotFoundException("Cannot find user: " + username)
+                ?: throw UsernameNotFoundException("Cannot find user: $username")
 
 
         if (!passwordEncoder.matches(password, user.password))

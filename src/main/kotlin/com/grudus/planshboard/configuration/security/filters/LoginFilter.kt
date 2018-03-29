@@ -45,7 +45,7 @@ constructor(defaultFilterProcessesUrl: String,
     }
 
     companion object {
-        private val DEFAULT_USERNAME_PARAMETER = "username"
-        private val DEFAULT_PASSWORD_PARAMETER = "password"
+        private const val DEFAULT_USERNAME_PARAMETER = "username"
+        private const val DEFAULT_PASSWORD_PARAMETER = "password"
     }
 }

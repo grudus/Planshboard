@@ -129,18 +129,18 @@ constructor(private val boardGameService: BoardGameService,
 
 
     @Test
-    fun `should find play results`() {
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(2)))
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(1)))
+    fun `should find play results and sort them by date`() {
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3), now().minusDays(4)))
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(2), now()))
+        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(1), now().minusYears(1)))
 
         get("${baseUrl(boardGameId)}/results")
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Int>(3)))
                 .andExpect(jsonPath("$.[*].date", notNullValue()))
                 .andExpect(jsonPath("$.[*].id", notNullValue()))
-                .andExpect(jsonPath("$.[0].results", hasSize<Int>(3)))
-                .andExpect(jsonPath("$.[1].results", hasSize<Int>(2)))
+                .andExpect(jsonPath("$.[0].results", hasSize<Int>(2)))
+                .andExpect(jsonPath("$.[1].results", hasSize<Int>(3)))
                 .andExpect(jsonPath("$.[2].results", hasSize<Int>(1)))
     }
 

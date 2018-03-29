@@ -37,9 +37,10 @@ constructor(private val playDao: PlayDao,
         val playResults: List<PlayOpponentsDto> = playDao.findPlayResultsForPlays(plays.map { it.id })
         val playResultsPerPlay = playResults.groupBy({ it.playId }, { PlayOpponentsResponse(it) })
 
-        return plays.map { play ->
-            PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!, play.note)
-        }
+        return plays.sortedByDescending { it.date }
+                .map { play ->
+                    PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!, play.note)
+                }
     }
 
     fun savePlay(userId: Id,

@@ -18,6 +18,30 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <db.url>jdbc:postgresql://localhost:5432/planshboard</db.url>
+                <db.username>grudus</db.username>
+                <db.password>grudus</db.password>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>heroku</id>
+            <properties>
+                <!--Heroku will automatically create env variables-->
+                <db.url>${JDBC_DATABASE_URL}</db.url>
+                <db.username>${JDBC_DATABASE_USERNAME}</db.username>
+                <db.password>${JDBC_DATABASE_PASSWORD}</db.password>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

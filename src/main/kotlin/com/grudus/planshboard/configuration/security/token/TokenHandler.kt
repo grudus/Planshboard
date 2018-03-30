@@ -4,7 +4,7 @@ import com.grudus.planshboard.user.User
 import java.math.BigInteger
 import java.security.SecureRandom
 
-// TODO change to jws token
+// TODO change to jwt token
 class TokenHandler(key: ByteArray) {
 
     private val secureRandom: SecureRandom = SecureRandom(key)

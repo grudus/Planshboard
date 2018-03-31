@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime.now
+import java.time.format.DateTimeFormatter
 
 class PlayControllerTest
 @Autowired
@@ -60,6 +61,7 @@ constructor(private val boardGameService: BoardGameService,
     @Test
     fun `should be able to create play with date in past`() {
         val date = now().minusDays(5)
+        val dateString: String = date.format(DateTimeFormatter.ISO_DATE_TIME)
         val request = AddPlayRequest(addOpponents(3), date)
 
         post(baseUrl(boardGameId), request)
@@ -67,7 +69,7 @@ constructor(private val boardGameService: BoardGameService,
 
         get("${baseUrl(boardGameId)}/results")
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.[0].date").value(date.toString()))
+                .andExpect(jsonPath("$.[0].date").value(dateString))
                 .andExpect(jsonPath("$.[0].note", nullValue()))
     }
 

@@ -27,7 +27,7 @@ constructor(private val authService: AuthenticationService,
 
         if (!allOpponentsWithIdExist(opponentsWithId))
             errors?.reject(RestKeys.OPPONENTS_NOT_EXISTS)
-        if (!allOpponentsWithoutIdDoNotExists(opponentsWithoutId))
+        if (!allOpponentsWithoutIdDoNotExist(opponentsWithoutId))
             errors?.reject(RestKeys.OPPONENTS_EXISTS)
     }
 
@@ -36,7 +36,7 @@ constructor(private val authService: AuthenticationService,
             AddPlayRequest::class.java.isAssignableFrom(clazz)
 
 
-    private fun allOpponentsWithoutIdDoNotExists(results: List<AddPlayResult>) =
+    private fun allOpponentsWithoutIdDoNotExist(results: List<AddPlayResult>) =
             results.map { it.opponentName }
                     .let { names ->
                         opponentService.allDoNotExist(authService.currentUserId(), names)

@@ -181,6 +181,41 @@ constructor(private val boardGameService: BoardGameService,
                 .andExpect(status().isNotFound)
     }
 
+    @Test
+    fun `should be able to delete play`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+        val playId2 = addPlay(boardGameId, addOpponents(6))
+
+        delete("${baseUrl(boardGameId)}/$playId")
+                .andExpect(status().isNoContent)
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(1)))
+                .andExpect(jsonPath("$.[0].id").value(playId2))
+    }
+
+    @Test
+    fun `should not be able to delete someone else's play`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+        login()
+
+        delete("${baseUrl(boardGameId)}/$playId")
+                .andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `should do nothing when deleting no existing play`() {
+        addPlay(boardGameId, addOpponents(3))
+
+        delete("${baseUrl(boardGameId)}/${nextLong()}")
+                .andExpect(status().isNoContent)
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.[*]", hasSize<Int>(1)))
+    }
+
     private fun newBoardGame() =
             boardGameService.createNew(authentication.userId, randomAlphabetic(11))
 

@@ -8,6 +8,7 @@ import com.grudus.planshboard.plays.model.PlayResponse
 import com.grudus.planshboard.plays.opponent.OpponentDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.*
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
@@ -29,7 +30,7 @@ constructor(private val playService: PlayService,
 
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(CREATED)
     fun addPlay(@RequestBody @Valid addPlayRequest: AddPlayRequest,
                 @PathVariable("boardGameId") boardGameId: Id,
                 authenticatedUser: AuthenticatedUser): IdResponse =
@@ -42,6 +43,14 @@ constructor(private val playService: PlayService,
     fun getPlayResults(@PathVariable("boardGameId") boardGameId: Id,
                        user: AuthenticatedUser): List<PlayResponse> =
             playService.getPlayResults(user.userId, boardGameId)
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("@playSecurityService.hasAccessToPlay(#user, #playId)")
+    @ResponseStatus(NO_CONTENT)
+    fun deletePlay(@PathVariable("id") playId: Id,
+                   user: AuthenticatedUser) {
+        playService.delete(playId)
+    }
 
     @InitBinder("addPlayRequest")
     protected fun initEditBinder(binder: WebDataBinder) {

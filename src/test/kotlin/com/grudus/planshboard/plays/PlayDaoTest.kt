@@ -180,6 +180,46 @@ constructor(private val playDao: PlayDao,
         assertEquals(opponents[1], dbResults[1].opponentId)
     }
 
+
+    @Test
+    fun `should delete play`() {
+        val playId = playDao.insertPlayAlone(boardGameId)
+        val playId2 = playDao.insertPlayAlone(boardGameId)
+
+        playDao.delete(playId)
+
+        val dbPlays = playDao.findPlaysForBoardGame(boardGameId)
+
+        assertEquals(1, dbPlays.size)
+        assertEquals(playId2, dbPlays[0].id)
+    }
+
+
+    @Test
+    fun `should delete play with results`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+
+        playDao.delete(playId)
+
+        val dbPlays = playDao.findPlaysForBoardGame(boardGameId)
+        val dbResults = playDao.findPlayResultsForPlays(listOf(playId))
+
+        assertTrue(dbPlays.isEmpty())
+        assertTrue(dbResults.isEmpty())
+    }
+
+    @Test
+    fun `shouldn't delete opponents when deleting play with results`() {
+        val opponentIds = addOpponents(1)
+        val playId = addPlay(boardGameId, opponentIds)
+
+        playDao.delete(playId)
+
+        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
+        assertEquals(1, opponents.size)
+        assertEquals(opponentIds[0], opponents[0].id)
+    }
+
     private fun addOpponents(count: Int = 5): List<Id> =
             (0 until count).map { randomAlphabetic(11 + it) }
                     .map { name -> opponentDao.addOpponent(userId, name) }

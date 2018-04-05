@@ -53,6 +53,10 @@ constructor(private val playDao: PlayDao,
     }
 
 
+    fun delete(playId: Id) {
+        playDao.delete(playId)
+    }
+
     private fun addOpponentsToPlay(userId: Id, playId: Id, results: List<AddPlayResult>) {
         val (existingOpponents, newOpponents) = results.partition { it.opponentId != null }
         val insertedOpponents = newOpponents.map {

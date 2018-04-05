@@ -63,4 +63,10 @@ constructor(private val dsl: DSLContext) {
                     .from(PLAYS_RESULTS).innerJoin(OPPONENTS).on(OPPONENTS.ID.eq(PLAYS_RESULTS.OPPONENT_ID))
                     .where(PLAYS_RESULTS.PLAY_ID.`in`(playsIds))
                     .fetchInto(PlayOpponentsDto::class.java)
+
+    fun delete(playId: Id) {
+        dsl.deleteFrom(PLAYS)
+                .where(PLAYS.ID.eq(playId))
+                .execute()
+    }
 }

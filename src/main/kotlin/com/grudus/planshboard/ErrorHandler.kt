@@ -2,7 +2,6 @@ package com.grudus.planshboard
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.grudus.planshboard.boardgame.BoardGameNotFoundException
-import com.grudus.planshboard.commons.RestKeys
 import com.grudus.planshboard.commons.RestKeys.DUPLICATES_FOUND
 import com.grudus.planshboard.commons.RestKeys.ELEMENT_NOT_FOUND
 import com.grudus.planshboard.commons.RestKeys.PARAMETER_NOT_RESENT
@@ -67,7 +66,7 @@ class ErrorHandler {
 
     @ExceptionHandler(AccessDeniedException::class)
     fun accessDenied(response: HttpServletResponse, request: HttpServletRequest, user: AuthenticatedUser) {
-        logger.warn("Access denied for user [${user.user.name}] for resource [${request.requestURI}]")
+        logger.warn("Access denied for user [${user.name}] for resource [${request.requestURI}]")
         response.sendError(403)
     }
 

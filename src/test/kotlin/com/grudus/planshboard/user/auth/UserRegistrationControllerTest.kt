@@ -56,7 +56,7 @@ constructor(private val userService: UserService) : AbstractControllerTest() {
     @Test
     fun `should not create user when already exists`() {
         login()
-        val user = AddUserRequest(authentication.user.name, randomAlphabetic(11))
+        val user = AddUserRequest(authentication.name, randomAlphabetic(11))
         postWithoutAuth(baseUrl, user)
                 .andExpect(status().isBadRequest)
                 .andExpect(jsonPath("$.codes", contains(USERNAME_EXISTS)))

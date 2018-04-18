@@ -24,9 +24,9 @@ constructor(private val userService: UserService, private val passwordEncoder: P
         if (username == null || credentials == null)
             throw BadCredentialsException("Bad credentials")
 
-        val password = credentials.toString().trim({ it <= ' ' })
+        val password = credentials.toString()
 
-        val user = userService.findByUsername(username.trim { it <= ' ' })
+        val user = userService.findByUsername(username)
                 ?: throw UsernameNotFoundException("Cannot find user: $username")
 
 

@@ -26,4 +26,8 @@ class TestContext {
                     .url(url)
                     .driverClassName(driver)
                     .build()
+
+    @Bean("tokenSecret")
+    @Primary
+    fun tokenSecret(@Value("\${token.secret}") tokenSecret: String) = tokenSecret
 }

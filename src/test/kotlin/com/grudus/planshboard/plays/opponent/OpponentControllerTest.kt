@@ -64,7 +64,7 @@ class OpponentControllerTest : AbstractControllerTest() {
         get(baseUrl)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Int>(1)))
-                .andExpect(jsonPath("$.[0].name").value(authentication.user.name))
+                .andExpect(jsonPath("$.[0].name").value(authentication.name))
     }
 
     @Test

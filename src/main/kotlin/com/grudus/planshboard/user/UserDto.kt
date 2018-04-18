@@ -1,19 +1,11 @@
 package com.grudus.planshboard.user
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.grudus.planshboard.commons.date.JsonLocalDateTimeDeserializer
-import com.grudus.planshboard.commons.date.JsonLocalDateTimeSerializer
-import java.time.LocalDateTime
+import com.grudus.planshboard.configuration.security.AuthenticatedUser
 
-class UserDto(val name: String,
-              @JsonSerialize(using = JsonLocalDateTimeSerializer::class)
-              @JsonDeserialize(using = JsonLocalDateTimeDeserializer::class)
-              val registerDate: LocalDateTime) {
+class UserDto(val name: String) {
 
     companion object {
-        fun fromUser(user: User): UserDto
-            = UserDto(user.name, user.registerDate)
+        fun fromUser(user: AuthenticatedUser): UserDto = UserDto(user.name)
     }
 
 }

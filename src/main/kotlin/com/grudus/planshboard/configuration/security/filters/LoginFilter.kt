@@ -36,7 +36,7 @@ constructor(defaultFilterProcessesUrl: String,
 
         tokenAuthenticationService.addAuthentication(response, auth)
         SecurityContextHolder.getContext().authentication = auth
-        log.info("User ${auth.user.name} successfully logged")
+        log.info("User [${auth.name}] successfully logged")
     }
 
     override fun unsuccessfulAuthentication(request: HttpServletRequest, response: HttpServletResponse, failed: AuthenticationException) {

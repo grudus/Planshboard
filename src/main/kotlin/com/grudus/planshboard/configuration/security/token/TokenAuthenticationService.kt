@@ -1,40 +1,37 @@
 package com.grudus.planshboard.configuration.security.token
 
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
-import com.grudus.planshboard.user.auth.UserTokenService
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import javax.xml.bind.DatatypeConverter
 
 @Service
 class TokenAuthenticationService
 @Autowired
-constructor(@Value("\${token.secret}") secretToken: String, private val userTokenService: UserTokenService) {
+constructor(@Value("\${token.secret}") private val tokenSecret: String) {
 
-    private val tokenHandler: TokenHandler = TokenHandler(DatatypeConverter.parseBase64Binary(secretToken))
-
+    private val logger = LoggerFactory.getLogger(javaClass)
+    private val tokenHandler: TokenHandler = TokenHandler(tokenSecret.toByteArray())
 
     fun addAuthentication(response: HttpServletResponse, authentication: Authentication) {
-        val user = (authentication as AuthenticatedUser).user
+        val user = (authentication as AuthenticatedUser)
 
         val token = user.token ?: tokenHandler.createTokenForUser(user)
-                .let { userTokenService.addToken(user.id!!, it); it }
 
-        response.setHeader(AUTH_HEADER_NAME, token)
+        response.setHeader(AUTH_HEADER_NAME, "$TOKEN_PREFIX$token")
     }
 
     fun getAuthentication(request: HttpServletRequest): Authentication? =
             request.getHeader(AUTH_HEADER_NAME)
-                    ?.let { token -> userTokenService.findByToken(token) }
-                    ?.let { user -> AuthenticatedUser(user) }
+                    ?.let { token -> tokenHandler.parseToken(token.removePrefix(TOKEN_PREFIX)) }
 
 
     companion object {
-        val AUTH_HEADER_NAME = "X-AUTH-TOKEN"
+        const val AUTH_HEADER_NAME = "Authorization"
+        const val TOKEN_PREFIX = "Bearer "
     }
 }

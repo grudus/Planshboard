@@ -11,9 +11,14 @@ class StatelessAuthenticationFilter(private val authenticationService: TokenAuth
 
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        val auth = authenticationService.getAuthentication(request)
-        SecurityContextHolder.getContext().authentication = auth
+        val auth = try {
+            authenticationService.getAuthentication(request)
+        } catch (exception: RuntimeException) {
+            logger.warn("Cannot authenticate user: [${exception.message}]")
+            null
+        }
 
+        SecurityContextHolder.getContext().authentication = auth
         filterChain.doFilter(request, response)
     }
 }

@@ -15,6 +15,6 @@ internal class UserControllerTest : AbstractControllerTest() {
         login()
         get("$baseUrl/current")
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.name").value(authentication.user.name))
+                .andExpect(jsonPath("$.name").value(authentication.name))
     }
 }

@@ -5,7 +5,7 @@
 
     <groupId>com.grudus.planshboard</groupId>
     <artifactId>planshboard</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>planshboard</name>

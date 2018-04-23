@@ -1,1 +1,0 @@
-ALTER TABLE plays ADD COLUMN note TEXT NULL;

@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS opponents (
-  id           BIGSERIAL PRIMARY KEY,
-  user_id      BIGINT                NOT NULL REFERENCES users ON DELETE CASCADE,
-  name         VARCHAR(255)          NOT NULL,
-  is_real_user BOOLEAN DEFAULT FALSE NOT NULL,
-  CONSTRAINT UNIQUE_OPPONENT_NAME UNIQUE (NAME, user_id)
-);

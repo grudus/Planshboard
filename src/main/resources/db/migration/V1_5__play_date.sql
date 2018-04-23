@@ -1,1 +1,0 @@
-ALTER TABLE plays ADD COLUMN date timestamp NOT NULL DEFAULT NOW();

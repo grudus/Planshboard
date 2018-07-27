@@ -1,11 +1,12 @@
 package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.AbstractDatabaseTest
-import com.grudus.planshboard.Tables.PLAYS_RESULTS
-import com.grudus.planshboard.boardgame.BoardGameDao
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.plays.model.PlayResult
 import com.grudus.planshboard.plays.opponent.OpponentDao
+import com.grudus.planshboard.utils.BoardGameUtil
+import com.grudus.planshboard.utils.OpponentsUtil
+import com.grudus.planshboard.utils.PlayUtil
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -17,20 +18,22 @@ import java.time.LocalDateTime
 class PlayDaoTest
 @Autowired
 constructor(private val playDao: PlayDao,
+            private val opponentsUtil: OpponentsUtil,
             private val opponentDao: OpponentDao,
-            private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
+            private val boardGameUtil: BoardGameUtil,
+            private val playUtil: PlayUtil) : AbstractDatabaseTest() {
 
     private val userId: Id by lazy {
         addUser().id!!
     }
     private val boardGameId by lazy {
-        boardGameDao.create(randomAlphabetic(11), userId)
+        boardGameUtil.addRandomBoardGame(userId)
     }
 
     @Test
     fun `should find all opponents for play`() {
         val opponentIds = addOpponents(3)
-        val playId = addPlay(boardGameId, opponentIds)
+        val playId = playUtil.addPlay(boardGameId, opponentIds)
 
         val opponents = playDao.findOpponentsForPlay(playId)
                 .map { it.id!! }
@@ -43,8 +46,8 @@ constructor(private val playDao: PlayDao,
     fun `should find opponents for specific play when multiple exists`() {
         val play1Count = 5
         val play2Count = 3
-        val play1Id = addPlay(boardGameId, addOpponents(play1Count))
-        val play2Id = addPlay(boardGameId, addOpponents(play2Count))
+        val play1Id = playUtil.addPlay(boardGameId, addOpponents(play1Count))
+        val play2Id = playUtil.addPlay(boardGameId, addOpponents(play2Count))
 
         val opponents1 = playDao.findOpponentsForPlay(play1Id)
         val opponents2 = playDao.findOpponentsForPlay(play2Id)
@@ -63,7 +66,7 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `should save multiple plays alone for one board play`() {
         val id1 = playDao.insertPlayAlone(boardGameId)
-        val id2 = playDao.findOpponentsForPlay(boardGameDao.create(randomAlphabetic(11), userId))
+        val id2 = playDao.findOpponentsForPlay(boardGameUtil.addRandomBoardGame(userId))
 
         assertNotEquals(id1, id2)
     }
@@ -83,7 +86,7 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should find plays for board game`() {
-        val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
+        val boardGameId2 = boardGameUtil.addRandomBoardGame(userId)
         val playsCount = 4
         repeat(playsCount) { playDao.insertPlayAlone(boardGameId) }
         repeat(3) { playDao.insertPlayAlone(boardGameId2) }
@@ -95,7 +98,7 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should return empty list when no plays for board game`() {
-        val boardGameId2 = boardGameDao.create(randomAlphabetic(11), userId)
+        val boardGameId2 = boardGameUtil.addRandomBoardGame(userId)
         repeat(3) { playDao.insertPlayAlone(boardGameId2) }
 
         val plays = playDao.findPlaysForBoardGame(boardGameId)
@@ -105,9 +108,9 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should find play results for single play`() {
-        addPlay(boardGameDao.create(randomAlphabetic(11), userId), addOpponents(2))
+        playUtil.addPlay(boardGameUtil.addRandomBoardGame(userId), addOpponents(2))
         val opponentsCount = 3
-        val id = addPlay(boardGameId, addOpponents(opponentsCount))
+        val id = playUtil.addPlay(boardGameId, addOpponents(opponentsCount))
 
         val playResults = playDao.findPlayResultsForPlays(listOf(id))
 
@@ -117,8 +120,8 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `should find play results for multiple plays`() {
         val opponentsCount = 3
-        val id1 = addPlay(boardGameDao.create(randomAlphabetic(11), userId), addOpponents(opponentsCount))
-        val id2 = addPlay(boardGameId, addOpponents(opponentsCount))
+        val id1 = playUtil.addPlay(boardGameUtil.addRandomBoardGame(userId), addOpponents(opponentsCount))
+        val id2 = playUtil.addPlay(boardGameId, addOpponents(opponentsCount))
 
         val playResults = playDao.findPlayResultsForPlays(listOf(id1, id2))
 
@@ -197,7 +200,7 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should delete play with results`() {
-        val playId = addPlay(boardGameId, addOpponents(3))
+        val playId = playUtil.addPlay(boardGameId, addOpponents(3))
 
         playDao.delete(playId)
 
@@ -211,7 +214,7 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `shouldn't delete opponents when deleting play with results`() {
         val opponentIds = addOpponents(1)
-        val playId = addPlay(boardGameId, opponentIds)
+        val playId = playUtil.addPlay(boardGameId, opponentIds)
 
         playDao.delete(playId)
 
@@ -220,17 +223,9 @@ constructor(private val playDao: PlayDao,
         assertEquals(opponentIds[0], opponents[0].id)
     }
 
-    private fun addOpponents(count: Int = 5): List<Id> =
-            (0 until count).map { randomAlphabetic(11 + it) }
-                    .map { name -> opponentDao.addOpponent(userId, name) }
+    private fun addOpponents(count: Int) =
+        opponentsUtil.addOpponents(userId, count)
 
-
-    private fun addPlay(boardGameId: Id, opponents: List<Id>): Id {
-        val playId = playDao.insertPlayAlone(boardGameId)
-        val playResults = opponents.map { PlayResult(playId, it, null, null) }
-        playDao.savePlayResults(playResults)
-        return playId
-    }
 
     private fun countPlayResults(playsIds: List<Id>): Int =
             playDao.findPlayResultsForPlays(playsIds).size

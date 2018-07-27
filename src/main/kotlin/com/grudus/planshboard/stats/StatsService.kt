@@ -15,4 +15,7 @@ constructor(private val gamesStatsDao: GamesStatsDao,
 
     fun countAllPlays(userId: Id): Int =
             playsStatsDao.countAllPlays(userId)
+
+    fun countPlayPositionPerOpponent(userId: Id): List<OpponentCount> =
+            playsStatsDao.countPlayPositionPerOpponent(userId)
 }

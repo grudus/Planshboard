@@ -13,9 +13,11 @@ class PlayUtil
 constructor(private val playDao: PlayDao){
 
 
-    fun addPlay(boardGameId: Id, opponents: List<Id>): Id {
+    fun addPlay(boardGameId: Id,
+                opponents: List<Id>,
+                opponentsMapper: (Id, Id) -> PlayResult = {id, playId -> PlayResult(playId, id, null, null) }): Id {
         val playId = playDao.insertPlayAlone(boardGameId)
-        val playResults = opponents.map { PlayResult(playId, it, null, null) }
+        val playResults = opponents.map { id -> opponentsMapper(id, playId) }
         playDao.savePlayResults(playResults)
         return playId
     }

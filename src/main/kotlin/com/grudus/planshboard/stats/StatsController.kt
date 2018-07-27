@@ -21,4 +21,8 @@ constructor(private val statsService: StatsService) {
     fun countAllPlays(user: AuthenticatedUser): CountResponse =
             statsService.countAllPlays(user.userId)
                     .let { CountResponse(it) }
+
+    @GetMapping("/wins")
+    fun countPlayPositionPerOpponent(user: AuthenticatedUser): List<OpponentCount> =
+            statsService.countPlayPositionPerOpponent(user.userId)
 }

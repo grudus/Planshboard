@@ -1,4 +1,4 @@
-package com.grudus.planshboard.stats
+package com.grudus.planshboard.stats.models
 
 import com.grudus.planshboard.boardgame.BoardGameDto
 

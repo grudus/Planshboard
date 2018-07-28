@@ -25,4 +25,8 @@ constructor(private val statsService: StatsService) {
     @GetMapping("/wins")
     fun countPlayPositionPerOpponent(user: AuthenticatedUser): List<OpponentCount> =
             statsService.countPlayPositionPerOpponent(user.userId)
+
+    @GetMapping("/plays", params = ["per-game"])
+    fun countPlaysPerBoardGame(user: AuthenticatedUser): List<PlaysCount> =
+            statsService.countPlaysPerBoardGame(user.userId)
 }

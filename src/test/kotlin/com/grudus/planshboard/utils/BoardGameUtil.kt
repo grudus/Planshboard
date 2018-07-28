@@ -14,9 +14,8 @@ constructor(private val boardGameService: BoardGameService) {
     fun addRandomBoardGame(userId: Id, name: String = RandomStringUtils.randomAlphabetic(11)): Id =
             boardGameService.createNew(userId, name)
 
-    fun addRandomBoardGames(userId: Id, numberOfGames: Int) {
-        repeat(numberOfGames) {
-            addRandomBoardGame(userId)
-        }
-    }
+    fun addRandomBoardGames(userId: Id, numberOfGames: Int): List<Id> =
+            (0 until numberOfGames).map {
+                addRandomBoardGame(userId)
+            }
 }

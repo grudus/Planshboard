@@ -1,6 +1,7 @@
 package com.grudus.planshboard.stats
 
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.PlayOpponentsDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -18,4 +19,7 @@ constructor(private val gamesStatsDao: GamesStatsDao,
 
     fun countPlayPositionPerOpponent(userId: Id): List<OpponentCount> =
             playsStatsDao.countPlayPositionPerOpponent(userId)
+
+    fun countPlaysPerBoardGame(userId: Id): List<PlaysCount> =
+            playsStatsDao.countPlaysPerBoardGames(userId)
 }

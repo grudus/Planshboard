@@ -8,7 +8,6 @@ import com.grudus.planshboard.utils.OpponentsUtil
 import com.grudus.planshboard.utils.PlayUtil
 import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -91,6 +90,64 @@ constructor(private val dao: PlaysStatsDao,
         assertEquals(2, firstPositionsPerOpponent.size)
         assertEquals(2, count(opponents[0]))
         assertEquals(1, count(opponents[1]))
+    }
+
+
+    @Test
+    fun `should count all plays per board games`() {
+        val gamesCount = 3
+        val opponents = addOpponents()
+        val games: List<Id> = boardGameUtil.addRandomBoardGames(userId, gamesCount)
+        val numbersOfPlays = listOf(3, 5, 2)
+
+        repeat(gamesCount) { i ->
+            playUtil.addPlays(games[i], opponents, numbersOfPlays[i])
+        }
+
+        val numberOfPlaysPerGame = dao.countPlaysPerBoardGames(userId)
+
+        val count = {id: Id -> numberOfPlaysPerGame.find { it.boardGame.id == id }?.count }
+
+        assertEquals(gamesCount, numberOfPlaysPerGame.size)
+
+        repeat(gamesCount) {i ->
+            assertEquals(numbersOfPlays[i], count(games[i]))
+        }
+    }
+
+    @Test
+    fun `should only count plays per board games of one user`() {
+        val gameId = boardGameUtil.addRandomBoardGame(userId)
+        val gameId2 = boardGameUtil.addRandomBoardGame(addUser().id!!)
+
+        val playCount1 = 4
+        val playCount2 = 7
+
+        playUtil.addPlays(gameId, addOpponents(), playCount1)
+        playUtil.addPlays(gameId2, addOpponents(), playCount2)
+
+        val numberOfPlaysPerGame = dao.countPlaysPerBoardGames(userId)
+
+        assertEquals(1, numberOfPlaysPerGame.size)
+        assertEquals(playCount1, numberOfPlaysPerGame[0].count)
+    }
+
+    @Test
+    fun `should count plays per board game and return game id`() {
+        val gamesCount = 3
+        val sortedGameIds = boardGameUtil.addRandomBoardGames(userId, gamesCount)
+                .sorted()
+
+        repeat(gamesCount) {i ->
+            playUtil.addPlays(sortedGameIds[i], addOpponents(), i+1)
+        }
+
+        val sortedNumberOfPlaysPerGame = dao.countPlaysPerBoardGames(userId)
+                .sortedBy { it.boardGame.id }
+
+        repeat(gamesCount) {i ->
+            assertEquals(sortedGameIds[i], sortedNumberOfPlaysPerGame[i].boardGame.id)
+        }
     }
 
 

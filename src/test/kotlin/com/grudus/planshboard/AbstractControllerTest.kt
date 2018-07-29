@@ -99,6 +99,12 @@ abstract class AbstractControllerTest : SpringBasedTest() {
         return performRequestWithAuth(get)
     }
 
+    protected fun <T> getAndReturn(url: String, responseClass: Class<T>, vararg params: RequestParam): T =
+            get(url, *params)
+                    .andReturn().response.contentAsString
+                    .let { json -> objectMapper.readValue(json, responseClass) }
+
+
     protected fun getWithoutAuth(url: String, vararg params: RequestParam): ResultActions {
         val get = bindParams(MockMvcRequestBuilders.get(url), arrayOf(*params))
         return mockMvc.perform(get)

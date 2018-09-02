@@ -27,7 +27,7 @@ mvn spring-boot:run
 ```
 6. Additionally, you can fire setup.sh script to get some basic data
 ```bash
-./src/main/resources/scripts/setup.sh {DB_USERNAME} {DB_PASSWORD}
+./src/main/resources/scripts/setup.sh
 ```
 
 Voilà! Your app is working now.

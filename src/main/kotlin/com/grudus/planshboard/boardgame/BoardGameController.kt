@@ -21,7 +21,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @GetMapping
     fun findAll(authenticatedUser: AuthenticatedUser): List<BoardGameDto> =
-            boardGameService.findAll(authenticatedUser.userId)
+            boardGameService.findAllSortedByName(authenticatedUser.userId)
 
     @GetMapping("/{id}")
     @PreAuthorize("@boardGameSecurityService.hasAccessToBoardGame(#user, #id)")

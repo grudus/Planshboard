@@ -51,9 +51,22 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
         (0 until items).map { randomAlphabetic(it + 5) }
                 .forEach { boardGameDao.create(it, userId) }
 
-        val games = boardGameDao.findAll(userId)
+        val games = boardGameDao.findAllSortedByName(userId)
 
         assertEquals(items, games.size)
+    }
+
+
+    @Test
+    fun `should find all and sort by name`() {
+        listOf("B${randomAlphabetic(3)}", "Z${randomAlphabetic(3)}", "A${randomAlphabetic(4)}")
+                .forEach { boardGameDao.create(it, userId) }
+
+        val games = boardGameDao.findAllSortedByName(userId)
+
+        assertTrue(games[0].name.startsWith("A"))
+        assertTrue(games[1].name.startsWith("B"))
+        assertTrue(games[2].name.startsWith("Z"))
     }
 
     @Test
@@ -65,7 +78,7 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
         boardGameDao.create(name, userId)
 
 
-        val games = boardGameDao.findAll(userId)
+        val games = boardGameDao.findAllSortedByName(userId)
 
         assertEquals(1, games.size)
         assertEquals(name, games[0].name)
@@ -76,7 +89,7 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
         val newUserId = addUser(randomAlphabetic(11)).id!!
         boardGameDao.create(randomAlphabetic(11), newUserId)
 
-        val games = boardGameDao.findAll(userId)
+        val games = boardGameDao.findAllSortedByName(userId)
 
         assertTrue(games.isEmpty())
     }
@@ -163,7 +176,7 @@ constructor(private val boardGameDao: BoardGameDao) : AbstractDatabaseTest() {
 
         boardGameDao.delete(nextLong())
 
-        val allGames = boardGameDao.findAll(userId)
+        val allGames = boardGameDao.findAllSortedByName(userId)
 
         assertEquals(allItems, allGames.size)
     }

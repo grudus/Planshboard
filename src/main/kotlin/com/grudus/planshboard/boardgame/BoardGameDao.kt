@@ -11,9 +11,10 @@ class BoardGameDao
 @Autowired
 constructor(private val dsl: DSLContext) {
 
-    fun findAll(userId: Id): List<BoardGame> =
+    fun findAllSortedByName(userId: Id): List<BoardGame> =
             dsl.selectFrom(BOARDGAMES)
                     .where(BOARDGAMES.USER_ID.eq(userId))
+                    .orderBy(BOARDGAMES.NAME)
                     .fetchInto(BoardGame::class.java)
 
     fun create(name: String, userId: Id): Id =

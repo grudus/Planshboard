@@ -35,8 +35,11 @@
             <id>heroku</id>
             <properties>
                 <!--Heroku will automatically create env variables-->
+                <!--suppress UnresolvedMavenProperty -->
                 <db.url>${JDBC_DATABASE_URL}</db.url>
+                <!--suppress UnresolvedMavenProperty -->
                 <db.username>${JDBC_DATABASE_USERNAME}</db.username>
+                <!--suppress UnresolvedMavenProperty -->
                 <db.password>${JDBC_DATABASE_PASSWORD}</db.password>
             </properties>
         </profile>
@@ -49,7 +52,7 @@
         <junit-jupiter.version>5.0.0</junit-jupiter.version>
         <junit-platform.version>1.0.0</junit-platform.version>
         <java.version>1.8</java.version>
-        <kotlin.version>1.2.10</kotlin.version>
+        <kotlin.version>1.2.71</kotlin.version>
 
         <db.driver>org.postgresql.Driver</db.driver>
         <jooq.db.util.name>org.jooq.util.postgres.PostgresDatabase</jooq.db.util.name>
@@ -80,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>

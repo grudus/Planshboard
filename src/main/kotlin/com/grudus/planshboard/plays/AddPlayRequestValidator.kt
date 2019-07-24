@@ -24,12 +24,18 @@ constructor(private val authService: AuthenticationService,
             errors?.reject(RestKeys.NO_RESULTS)
             return
         }
-
+        if (containsDuplicatedOpponents(request)) {
+            errors?.reject(RestKeys.DUPLICATED_OPPONENTS)
+            return
+        }
         if (!allOpponentsWithIdExist(opponentsWithId))
             errors?.reject(RestKeys.OPPONENTS_NOT_EXISTS)
         if (!allOpponentsWithoutIdDoNotExist(opponentsWithoutId))
             errors?.reject(RestKeys.OPPONENTS_EXISTS)
     }
+
+    private fun containsDuplicatedOpponents(request: AddPlayRequest): Boolean =
+            request.results.distinctBy { it.opponentName }.size != request.results.size
 
 
     override fun supports(clazz: Class<*>?): Boolean =

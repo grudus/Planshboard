@@ -90,7 +90,16 @@ class AddPlayRequestValidatorTest {
         assertErrorCodes(errors, RestKeys.OPPONENTS_EXISTS)
     }
 
+    @Test
+    fun `should not be able to save play with duplicated opponent names`() {
+        val request = AddPlayRequest(randomOpponents("Maurycy") + randomOpponents("Maurycy"))
+        val errors = getErrors(request)
 
+        validator.validate(request, errors)
+
+        assertEquals(1, errors.errorCount)
+        assertErrorCodes(errors, RestKeys.DUPLICATED_OPPONENTS)
+    }
 
 
 

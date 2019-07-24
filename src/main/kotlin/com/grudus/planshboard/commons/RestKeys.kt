@@ -14,4 +14,5 @@ object RestKeys {
     const val BOARD_GAME_NOT_EXISTS: String = "BOARD_GAME.NOT_EXISTS"
     const val OPPONENTS_NOT_EXISTS: String = "OPPONENTS.NOT_EXIST"
     const val OPPONENTS_EXISTS: String = "OPPONENTS.EXISTS"
+    const val DUPLICATED_OPPONENTS = "OPPONENTS.DUPLICATED"
 }

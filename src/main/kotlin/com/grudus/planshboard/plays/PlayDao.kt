@@ -9,7 +9,6 @@ import com.grudus.planshboard.plays.opponent.Opponent
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
@@ -41,12 +40,27 @@ constructor(private val dsl: DSLContext) {
         batchStep.execute()
     }
 
+    fun removeAllPlayResults(playId: Id) {
+        dsl.deleteFrom(PLAYS_RESULTS)
+                .where(PLAYS_RESULTS.PLAY_ID.eq(playId))
+                .execute()
+    }
+
     fun insertPlayAlone(boardGameId: Id, date: LocalDateTime? = now(), note: String? = null): Id =
             dsl.insertInto(PLAYS, PLAYS.BOARDGAME_ID, PLAYS.DATE, PLAYS.NOTE)
                     .values(boardGameId, date, note)
                     .returning()
                     .fetchOne()
                     .id
+
+
+    fun updatePlayAlone(playId: Id, date: LocalDateTime?, note: String?) {
+        dsl.update(PLAYS)
+                .set(PLAYS.DATE, date)
+                .set(PLAYS.NOTE, note)
+                .where(PLAYS.ID.eq(playId))
+                .execute()
+    }
 
     fun findById(playId: Id): Play? =
             dsl.selectFrom(PLAYS)

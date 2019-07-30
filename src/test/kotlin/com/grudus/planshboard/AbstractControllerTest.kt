@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
@@ -126,7 +127,6 @@ abstract class AbstractControllerTest : SpringBasedTest() {
         return mockMvc.perform(requestBuilders.header(AUTH_HEADER_NAME, token).principal(authentication))
     }
 
-
     private fun setupContext() {
         val ctx = SecurityContextHolder.createEmptyContext()
         SecurityContextHolder.setContext(ctx)
@@ -135,4 +135,7 @@ abstract class AbstractControllerTest : SpringBasedTest() {
 
     private fun toJson(o: Any): ByteArray =
             objectMapper.writeValueAsBytes(o)
+
+    protected fun ResultActions.andPrint(): ResultActions =
+            this.andDo(MockMvcResultHandlers.print())
 }

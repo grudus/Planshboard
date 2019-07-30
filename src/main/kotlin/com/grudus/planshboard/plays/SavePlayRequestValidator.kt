@@ -1,7 +1,7 @@
 package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.commons.RestKeys
-import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.SavePlayRequest
 import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AuthenticationService
@@ -11,13 +11,13 @@ import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 
 @Component
-class AddPlayRequestValidator
+class SavePlayRequestValidator
 @Autowired
 constructor(private val authService: AuthenticationService,
             private val opponentService: OpponentService) : Validator {
 
     override fun validate(target: Any?, errors: Errors?) {
-        val request = target as AddPlayRequest
+        val request = target as SavePlayRequest
         val (opponentsWithId, opponentsWithoutId) = request.results.partition { it.opponentId != null }
 
         if (request.results.isEmpty()) {
@@ -34,12 +34,12 @@ constructor(private val authService: AuthenticationService,
             errors?.reject(RestKeys.OPPONENTS_EXISTS)
     }
 
-    private fun containsDuplicatedOpponents(request: AddPlayRequest): Boolean =
+    private fun containsDuplicatedOpponents(request: SavePlayRequest): Boolean =
             request.results.distinctBy { it.opponentName }.size != request.results.size
 
 
-    override fun supports(clazz: Class<*>?): Boolean =
-            AddPlayRequest::class.java.isAssignableFrom(clazz)
+    override fun supports(clazz: Class<*>): Boolean =
+            SavePlayRequest::class.java.isAssignableFrom(clazz)
 
 
     private fun allOpponentsWithoutIdDoNotExist(results: List<AddPlayResult>) =

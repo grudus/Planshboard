@@ -6,7 +6,7 @@ import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.commons.RestKeys.NO_RESULTS
-import com.grudus.planshboard.plays.model.AddPlayRequest
+import com.grudus.planshboard.plays.model.SavePlayRequest
 import com.grudus.planshboard.plays.model.AddPlayResult
 import com.grudus.planshboard.plays.opponent.OpponentNameId
 import com.grudus.planshboard.plays.opponent.OpponentService
@@ -19,9 +19,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime.now
+import java.time.LocalDateTime.of
 import java.time.format.DateTimeFormatter
 
 class PlayControllerTest
@@ -41,7 +43,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should save play`() {
-        val request = AddPlayRequest(addOpponents(3))
+        val request = SavePlayRequest(addOpponents(3))
 
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
@@ -50,7 +52,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should not be able to save play without results`() {
-        val request = AddPlayRequest(emptyList())
+        val request = SavePlayRequest(emptyList())
 
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isBadRequest)
@@ -62,7 +64,7 @@ constructor(private val boardGameService: BoardGameService,
     fun `should be able to create play with date in past`() {
         val date = now().minusDays(5)
         val dateString: String = date.format(DateTimeFormatter.ISO_DATE_TIME)
-        val request = AddPlayRequest(addOpponents(3), date)
+        val request = SavePlayRequest(addOpponents(3), date)
 
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
@@ -74,9 +76,9 @@ constructor(private val boardGameService: BoardGameService,
     }
 
     @Test
-    fun `should be able to create lay with note`() {
+    fun `should be able to create play with note`() {
         val note = randomAlphabetic(11)
-        val request = AddPlayRequest(addOpponents(2), now(), note)
+        val request = SavePlayRequest(addOpponents(2), now(), note)
 
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
@@ -89,7 +91,7 @@ constructor(private val boardGameService: BoardGameService,
     @Test
     fun `should create opponent if saving play with opponent without id`() {
         val opponentName = randomAlphabetic(11)
-        val request = AddPlayRequest(listOf(AddPlayResult(opponentName, 1)))
+        val request = SavePlayRequest(listOf(AddPlayResult(opponentName, 1)))
 
         post(baseUrl(boardGameId), request)
                 .andExpect(status().isCreated)
@@ -98,6 +100,42 @@ constructor(private val boardGameService: BoardGameService,
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.[*]", hasSize<Int>(2)))
                 .andExpect(jsonPath("$.[*].name", hasItem(opponentName)))
+    }
+
+    @Test
+    fun `should update play`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+
+        val updateRequest = SavePlayRequest(addOpponents(2), now().minusDays(1), randomAlphabetic(11))
+
+        put("${baseUrl(boardGameId)}/$playId", updateRequest)
+                .andExpect(status().isOk)
+
+        get("${baseUrl(boardGameId)}/results")
+                .andExpect(status().isOk)
+                .andPrint()
+                .andExpect(jsonPath("$.[0].note").value(updateRequest.note!!))
+    }
+
+    @Test
+    fun `validation should work when updating play`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+
+        val updateRequest = SavePlayRequest(emptyList())
+
+        put("${baseUrl(boardGameId)}/$playId", updateRequest)
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.codes", hasItem(NO_RESULTS)))
+    }
+
+    @Test
+    fun `should not be able to update someone else's play`() {
+        val playId = addPlay(boardGameId, addOpponents(3))
+
+        login()
+
+        put("${baseUrl(boardGameId)}/$playId", SavePlayRequest(addOpponents(2)))
+                .andExpect(status().isForbidden)
     }
 
     @Test
@@ -132,9 +170,9 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should find play results and sort them by date`() {
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3), now().minusDays(4)))
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(2), now()))
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(1), now().minusYears(1)))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(3), now().minusDays(4)))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(2), now()))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(1), now().minusYears(1)))
 
         get("${baseUrl(boardGameId)}/results")
                 .andExpect(status().isOk)
@@ -148,8 +186,8 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should find play result for game`() {
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
-        post(baseUrl(newBoardGame()), AddPlayRequest(addOpponents(2)))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(3)))
+        post(baseUrl(newBoardGame()), SavePlayRequest(addOpponents(2)))
 
         get("${baseUrl(boardGameId)}/results")
                 .andExpect(status().isOk)
@@ -166,7 +204,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should not be able to see someone else's play results`() {
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(3)))
         login()
 
         get("${baseUrl(boardGameId)}/results")
@@ -175,7 +213,7 @@ constructor(private val boardGameService: BoardGameService,
 
     @Test
     fun `should return 404 when finding play results for non existing board game`() {
-        post(baseUrl(boardGameId), AddPlayRequest(addOpponents(3)))
+        post(baseUrl(boardGameId), SavePlayRequest(addOpponents(3)))
 
         get("${baseUrl(nextLong())}/results")
                 .andExpect(status().isNotFound)
@@ -221,7 +259,7 @@ constructor(private val boardGameService: BoardGameService,
 
 
     private fun addPlay(boardGameId: Id, results: List<AddPlayResult>): Id =
-            post(baseUrl(boardGameId), AddPlayRequest(results), IdResponse::class.java).id
+            post(baseUrl(boardGameId), SavePlayRequest(results), IdResponse::class.java).id
 
 
     private fun addOpponents(count: Int): List<AddPlayResult> =

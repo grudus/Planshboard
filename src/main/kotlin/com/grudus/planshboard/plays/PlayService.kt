@@ -9,8 +9,10 @@ import com.grudus.planshboard.plays.opponent.Opponent
 import com.grudus.planshboard.plays.opponent.OpponentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class PlayService
 @Autowired
 constructor(private val playDao: PlayDao,
@@ -45,7 +47,7 @@ constructor(private val playDao: PlayDao,
 
     fun savePlay(userId: Id,
                  boardGameId: Id,
-                 request: AddPlayRequest): Id {
+                 request: SavePlayRequest): Id {
         val playId = playDao.insertPlayAlone(boardGameId, request.date, request.note)
         addOpponentsToPlay(userId, playId, request.results)
 
@@ -55,6 +57,14 @@ constructor(private val playDao: PlayDao,
 
     fun delete(playId: Id) {
         playDao.delete(playId)
+    }
+
+    fun updatePlay(userId: Id, playId: Id, request: SavePlayRequest): PlayResponse {
+        playDao.updatePlayAlone(playId, request.date, request.note)
+        playDao.removeAllPlayResults(playId)
+        addOpponentsToPlay(userId, playId, request.results)
+
+        return PlayResponse(playId, request.date!!, mapResults(request.results), request.note)
     }
 
     private fun addOpponentsToPlay(userId: Id, playId: Id, results: List<AddPlayResult>) {
@@ -69,4 +79,9 @@ constructor(private val playDao: PlayDao,
 
         playDao.savePlayResults(playResults)
     }
+
+    private fun mapResults(results: List<AddPlayResult>): List<PlayOpponentsResponse> =
+            results.map {
+                PlayOpponentsResponse(it.opponentId!!, it.opponentName, it.position, it.points)
+            }
 }

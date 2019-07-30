@@ -41,7 +41,7 @@ constructor(private val playDao: PlayDao,
 
         return plays.sortedByDescending { it.date }
                 .map { play ->
-                    PlayResponse(play.id, play.date, playResultsPerPlay[play.id]!!, play.note)
+                    PlayResponse(play.id, play.date, playResultsPerPlay.getValue(play.id), play.note)
                 }
     }
 
@@ -64,7 +64,14 @@ constructor(private val playDao: PlayDao,
         playDao.removeAllPlayResults(playId)
         addOpponentsToPlay(userId, playId, request.results)
 
-        return PlayResponse(playId, request.date!!, mapResults(request.results), request.note)
+        return findPlay(playId)
+    }
+
+    private fun findPlay(playId: Id): PlayResponse {
+        val play: Play = playDao.findById(playId) ?: throw ResourceNotFoundException("Cannot find play with id $playId")
+        val results: List<PlayOpponentsDto> = playDao.findPlayResultsForPlays(listOf(playId))
+
+        return PlayResponse(playId, play.date, results.map { PlayOpponentsResponse(it) }, play.note)
     }
 
     private fun addOpponentsToPlay(userId: Id, playId: Id, results: List<AddPlayResult>) {

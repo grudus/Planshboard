@@ -18,7 +18,6 @@ class PlayDao
 @Autowired
 constructor(private val dsl: DSLContext) {
 
-
     fun findOpponentsForPlay(playId: Id): List<Opponent> =
             dsl.select(OPPONENTS.ID, OPPONENTS.USER_ID, OPPONENTS.NAME)
                     .from(PLAYS_RESULTS)

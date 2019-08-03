@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -22,16 +23,30 @@ constructor(@Value("\${token.secret}") private val tokenSecret: String) {
 
         val token = user.token ?: tokenHandler.createTokenForUser(user)
 
-        response.setHeader(AUTH_HEADER_NAME, "$TOKEN_PREFIX$token")
+        response.addCookie(createAuthCookie(token))
     }
 
+
     fun getAuthentication(request: HttpServletRequest): Authentication? =
-            request.getHeader(AUTH_HEADER_NAME)
-                    ?.let { token -> tokenHandler.parseToken(token.removePrefix(TOKEN_PREFIX)) }
+            request.cookies.find { cookie -> cookie.name == AUTH_COOKIE_NAME }
+                    ?.let { cookie -> tokenHandler.parseToken(cookie.value) }
+
+    fun removeAuthentication(response: HttpServletResponse) {
+        val cookie = createAuthCookie("")
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+    }
+
+    private fun createAuthCookie(token: String): Cookie {
+        val cookie = Cookie(AUTH_COOKIE_NAME, token)
+        cookie.isHttpOnly = true
+        cookie.maxAge = 3600
+        cookie.path = "/"
+        return cookie
+    }
 
 
     companion object {
-        const val AUTH_HEADER_NAME = "Authorization"
-        const val TOKEN_PREFIX = "Bearer "
+        const val AUTH_COOKIE_NAME = "Authorization"
     }
 }

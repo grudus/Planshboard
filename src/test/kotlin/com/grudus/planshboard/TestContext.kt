@@ -2,6 +2,9 @@ package com.grudus.planshboard
 
 
 import com.grudus.planshboard.configuration.PlanshboardContext
+import com.grudus.planshboard.environment.EnvironmentKeys
+import com.grudus.planshboard.environment.EnvironmentKeys.TOKEN_SECRET
+import com.grudus.planshboard.environment.EnvironmentService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.*
@@ -15,19 +18,15 @@ class TestContext {
 
     @Bean
     @Primary
-    fun primaryDataSource(@Value("\${spring.datasource.driver-class-name}") driver: String,
-                          @Value("\${spring.datasource.url}") url: String,
-                          @Value("\${spring.datasource.username}") username: String,
-                          @Value("\${spring.datasource.password}") password: String): DataSource =
-
+    fun primaryDataSource(env: EnvironmentService): DataSource =
             DataSourceBuilder.create()
-                    .username(username)
-                    .password(password)
-                    .url(url)
-                    .driverClassName(driver)
+                    .url(env.getText(EnvironmentKeys.SPRING_DATASOURCE_URL))
+                    .username(env.getText(EnvironmentKeys.SPRING_DATASOURCE_USERNAME))
+                    .password(env.getText(EnvironmentKeys.SPRING_DATASOURCE_PASSWORD))
+                    .driverClassName(env.getText(EnvironmentKeys.SPRING_DATASOURCE_DRIVER_CLASS_NAME))
                     .build()
 
     @Bean("tokenSecret")
     @Primary
-    fun tokenSecret(@Value("\${token.secret}") tokenSecret: String) = tokenSecret
+    fun tokenSecret(env: EnvironmentService) = env.getText(TOKEN_SECRET)
 }

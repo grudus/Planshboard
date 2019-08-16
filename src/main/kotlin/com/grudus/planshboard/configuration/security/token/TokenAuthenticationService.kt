@@ -1,6 +1,8 @@
 package com.grudus.planshboard.configuration.security.token
 
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
+import com.grudus.planshboard.environment.EnvironmentKeys.TOKEN_SECRET
+import com.grudus.planshboard.environment.EnvironmentService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -13,16 +15,16 @@ import javax.servlet.http.HttpServletResponse
 @Service
 class TokenAuthenticationService
 @Autowired
-constructor(@Value("\${token.secret}") private val tokenSecret: String) {
+constructor(environmentService: EnvironmentService) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val tokenHandler: TokenHandler = TokenHandler(tokenSecret.toByteArray())
+    private val tokenHandler: TokenHandler = TokenHandler(environmentService.getText(TOKEN_SECRET).toByteArray())
 
     fun addAuthentication(response: HttpServletResponse, authentication: Authentication) {
         val user = (authentication as AuthenticatedUser)
+        logger.info("Adding authentication for user [{}]", user.userId)
 
         val token = user.token ?: tokenHandler.createTokenForUser(user)
-
         response.addCookie(createAuthCookie(token))
     }
 

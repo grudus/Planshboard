@@ -1,10 +1,14 @@
 package com.grudus.planshboard.configuration
 
+import com.grudus.planshboard.environment.EnvironmentKeys.SPRING_DATASOURCE_DRIVER_CLASS_NAME
+import com.grudus.planshboard.environment.EnvironmentKeys.SPRING_DATASOURCE_PASSWORD
+import com.grudus.planshboard.environment.EnvironmentKeys.SPRING_DATASOURCE_URL
+import com.grudus.planshboard.environment.EnvironmentKeys.SPRING_DATASOURCE_USERNAME
+import com.grudus.planshboard.environment.EnvironmentService
 import org.jooq.ConnectionProvider
 import org.jooq.SQLDialect;
 import org.jooq.impl.DataSourceConnectionProvider
 import org.jooq.impl.DefaultDSLContext
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,16 +27,13 @@ class PlanshboardContext {
 
     @Bean
     fun primaryDataSource(
-            @Value("\${spring.datasource.url}") url: String,
-            @Value("\${spring.datasource.username}") username: String,
-            @Value("\${spring.datasource.password}") password: String,
-            @Value("\${spring.datasource.driver-class-name}") driver: String
+         env: EnvironmentService
     ): DataSource =
             DataSourceBuilder.create()
-                    .url(url)
-                    .username(username)
-                    .password(password)
-                    .driverClassName(driver)
+                    .url(env.getText(SPRING_DATASOURCE_URL))
+                    .username(env.getText(SPRING_DATASOURCE_USERNAME))
+                    .password(env.getText(SPRING_DATASOURCE_PASSWORD))
+                    .driverClassName(env.getText(SPRING_DATASOURCE_DRIVER_CLASS_NAME))
                     .build()
 
 
@@ -42,7 +43,7 @@ class PlanshboardContext {
 
     @Bean
     fun connectionProvider(dataSource: DataSource): DataSourceConnectionProvider =
-            DataSourceConnectionProvider(TransactionAwareDataSourceProxy(dataSource))
+            DataSourceConnectionProvider(TransactionAwareDataSourceProxy(dataSource) as DataSource?)
 
     @Bean
     fun dsl(connectionProvider: ConnectionProvider): DefaultDSLContext =

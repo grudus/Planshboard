@@ -32,9 +32,9 @@ mvn clean install
 ```bash
 mvn spring-boot:run
 ```
-6. Additionally, you can fire setup.sh script to get some basic data
+6. Additionally, you can fire setup.sh script to get some initial data locally
 ```bash
-./src/main/resources/scripts/setup.sh
+./scripts/setup.sh
 ```
 
 Voilà! Your app is working now.

@@ -85,7 +85,7 @@ for i in "${BOARD_GAME_IDS[@]}"; do
     PLAYS=$((RANDOM % 10))
     echo "Adding $PLAYS plays to boardgame $i ..."
     for p in $(seq 0 ${PLAYS}); do
-        add_play ${i} "${AUTH_TOKEN}"
+        add_play "${i}" "${AUTH_TOKEN}"
     done
     echo -e "Plays added"
 done

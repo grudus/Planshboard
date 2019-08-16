@@ -1,3 +1,3 @@
 package com.grudus.planshboard.boardgame
 
-class AddBoardGameRequest(val name: String)
+data class AddBoardGameRequest(val name: String)

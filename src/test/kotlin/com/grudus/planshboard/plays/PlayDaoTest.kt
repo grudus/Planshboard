@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDateTime
+import java.time.LocalDateTime.*
 
 class PlayDaoTest
 @Autowired
@@ -88,8 +89,8 @@ constructor(private val playDao: PlayDao,
     fun `should find plays for board game`() {
         val boardGameId2 = boardGameUtil.addRandomBoardGame(userId)
         val playsCount = 4
-        repeat(playsCount) { playDao.insertPlayAlone(boardGameId) }
-        repeat(3) { playDao.insertPlayAlone(boardGameId2) }
+        repeat(playsCount) { playUtil.addPlay(boardGameId, addOpponents(2)) }
+        repeat(3) { playUtil.addPlay(boardGameId2, addOpponents(2)) }
 
         val plays = playDao.findPlaysForBoardGame(boardGameId)
 
@@ -131,8 +132,8 @@ constructor(private val playDao: PlayDao,
     @Test
     fun `should insert with note`() {
         val note = randomAlphabetic(11)
-        playDao.insertPlayAlone(boardGameId, LocalDateTime.now(), note)
-        playDao.insertPlayAlone(boardGameId, LocalDateTime.now())
+        playUtil.addPlay(boardGameId, addOpponents(1), note = note)
+        playUtil.addPlay(boardGameId, addOpponents(1))
 
         val plays = playDao.findPlaysForBoardGame(boardGameId)
                 .sortedBy { it.id }
@@ -143,8 +144,8 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should insert with date in past`() {
-        val date = LocalDateTime.now().minusDays(5)
-        playDao.insertPlayAlone(boardGameId, date)
+        val date = now().minusDays(5)
+        playUtil.addPlay(boardGameId, addOpponents(2), date = date)
 
         val play = playDao.findPlaysForBoardGame(boardGameId)[0]
 
@@ -153,8 +154,8 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should insert with today's date when no date specified`() {
-        val timeBeforeInsert = LocalDateTime.now().minusSeconds(10)
-        playDao.insertPlayAlone(boardGameId)
+        val timeBeforeInsert = now().minusSeconds(10)
+        playUtil.addPlay(boardGameId, addOpponents(2))
 
         val play = playDao.findPlaysForBoardGame(boardGameId)[0]
 
@@ -186,8 +187,8 @@ constructor(private val playDao: PlayDao,
 
     @Test
     fun `should delete play`() {
-        val playId = playDao.insertPlayAlone(boardGameId)
-        val playId2 = playDao.insertPlayAlone(boardGameId)
+        val playId = playUtil.addPlay(boardGameId, addOpponents(1))
+        val playId2 = playUtil.addPlay(boardGameId, addOpponents(1))
 
         playDao.delete(playId)
 

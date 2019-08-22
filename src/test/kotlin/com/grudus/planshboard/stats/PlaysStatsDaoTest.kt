@@ -80,7 +80,7 @@ constructor(private val dao: PlaysStatsDao,
         )
 
         playsResults.forEach{
-            playUtil.addPlay(gameId, opponents) { id, playId -> it[id]!!(playId, id) }
+            playUtil.addPlay(gameId, opponents, { id, playId -> it[id]!!(playId, id) })
         }
 
         val firstPositionsPerOpponent = dao.countPlayPositionPerOpponent(userId)

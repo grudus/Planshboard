@@ -2,9 +2,7 @@ package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.Tables.*
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.plays.model.Play
-import com.grudus.planshboard.plays.model.PlayOpponentsDto
-import com.grudus.planshboard.plays.model.PlayResult
+import com.grudus.planshboard.plays.model.*
 import com.grudus.planshboard.plays.opponent.Opponent
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
@@ -66,10 +64,35 @@ constructor(private val dsl: DSLContext) {
                     .where(PLAYS.ID.eq(playId))
                     .fetchOneInto(Play::class.java)
 
-    fun findPlaysForBoardGame(boardGameId: Id): List<Play> =
-            dsl.selectFrom(PLAYS)
+
+    fun findPlaysForBoardGame(boardGameId: Id): List<PlayResponse> =
+            dsl.select(
+                    PLAYS.ID,
+                    PLAYS.NOTE,
+                    PLAYS.DATE,
+                    PLAYS_RESULTS.OPPONENT_ID,
+                    PLAYS_RESULTS.POINTS,
+                    PLAYS_RESULTS.POSITION,
+                    OPPONENTS.NAME
+            ).from(PLAYS)
+                    .join(PLAYS_RESULTS).on(PLAYS_RESULTS.PLAY_ID.eq(PLAYS.ID))
+                    .join(OPPONENTS).on(OPPONENTS.ID.eq(PLAYS_RESULTS.OPPONENT_ID))
                     .where(PLAYS.BOARDGAME_ID.eq(boardGameId))
-                    .fetchInto(Play::class.java)
+                    .orderBy(PLAYS.DATE.desc())
+                    .fetchGroups({ record ->
+                        Triple(record[PLAYS.ID], record[PLAYS.NOTE], record[PLAYS.DATE])
+                    }, { record ->
+                        PlayOpponentsResponse(
+                                record[PLAYS_RESULTS.OPPONENT_ID],
+                                record[OPPONENTS.NAME],
+                                record[PLAYS_RESULTS.POSITION],
+                                record[PLAYS_RESULTS.POINTS]
+                        )
+                    }).map { (triple, opponents) ->
+                        val (id, note, date) = triple
+                        PlayResponse(id, date, opponents, note)
+                    }
+
 
     fun findPlayResultsForPlays(playsIds: List<Id>): List<PlayOpponentsDto> =
             dsl.select(PLAYS_RESULTS.PLAY_ID, OPPONENTS.ID, OPPONENTS.NAME, PLAYS_RESULTS.POSITION, PLAYS_RESULTS.POINTS)

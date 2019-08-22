@@ -88,9 +88,9 @@ constructor(
                 mapOf(opponents[0] to 2, opponents[1] to 1),
                 mapOf(opponents[0] to 1, opponents[1] to 2)
         ).forEach { result: Map<Id, Int> ->
-            playsUtil.addPlay(boardGames()[0], opponents) { id, playId ->
+            playsUtil.addPlay(boardGames()[0], opponents, { id, playId ->
                 PlayResult(playId, id, null, result[id]!!)
-            }
+            })
         }
 
         val stats = getAndReturn(baseUrl, StatsDto::class.java)

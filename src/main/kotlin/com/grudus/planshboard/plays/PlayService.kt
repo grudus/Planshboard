@@ -35,14 +35,7 @@ constructor(private val playDao: PlayDao,
         if (!boardGameService.existsForUser(userId, boardGameId))
             throw BoardGameNotFoundException("Cannot find board game with id [$boardGameId]")
 
-        val plays: List<Play> = playDao.findPlaysForBoardGame(boardGameId)
-        val playResults: List<PlayOpponentsDto> = playDao.findPlayResultsForPlays(plays.map { it.id })
-        val playResultsPerPlay = playResults.groupBy({ it.playId }, { PlayOpponentsResponse(it) })
-
-        return plays.sortedByDescending { it.date }
-                .map { play ->
-                    PlayResponse(play.id, play.date, playResultsPerPlay.getValue(play.id), play.note)
-                }
+       return playDao.findPlaysForBoardGame(boardGameId)
     }
 
     fun savePlay(userId: Id,

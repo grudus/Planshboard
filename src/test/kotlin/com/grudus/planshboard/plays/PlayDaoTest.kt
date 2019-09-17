@@ -13,7 +13,6 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDateTime
 import java.time.LocalDateTime.*
 
 class PlayDaoTest
@@ -219,9 +218,11 @@ constructor(private val playDao: PlayDao,
 
         playDao.delete(playId)
 
-        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
-        assertEquals(1, opponents.size)
-        assertEquals(opponentIds[0], opponents[0].id)
+        val opponentsWithoutCreator = opponentDao.findAllOpponentsCreatedBy(userId)
+                .filter { it.pointingToUser != userId }
+
+        assertEquals(1, opponentsWithoutCreator.size)
+        assertEquals(opponentIds[0], opponentsWithoutCreator[0].id)
     }
 
     private fun addOpponents(count: Int) =

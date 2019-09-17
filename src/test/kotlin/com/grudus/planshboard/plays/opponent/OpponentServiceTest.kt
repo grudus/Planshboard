@@ -28,7 +28,7 @@ class OpponentServiceTest {
     @Test
     fun `should detect if all exists`() {
         val ids = listOf(nextLong(), nextLong())
-        Mockito.`when`(opponentDao.findAllOpponentsWithReal(anyLong()))
+        Mockito.`when`(opponentDao.findAllOpponentsCreatedBy(anyLong()))
                 .thenReturn(listOf(randomOpponent(ids[0]), randomOpponent(ids[1]), randomOpponent()))
 
         val allExists = opponentService.allExists(nextLong(), ids)
@@ -39,7 +39,7 @@ class OpponentServiceTest {
     @Test
     fun `should return true if passing empty list`() {
         val ids = emptyList<Id>()
-        Mockito.`when`(opponentDao.findAllOpponentsWithReal(anyLong()))
+        Mockito.`when`(opponentDao.findAllOpponentsCreatedBy(anyLong()))
                 .thenReturn(listOf(randomOpponent(), randomOpponent(), randomOpponent()))
 
         val allExists = opponentService.allExists(nextLong(), ids)
@@ -50,7 +50,7 @@ class OpponentServiceTest {
     @Test
     fun `should return false if not all ids exists in db`() {
         val ids = listOf(nextLong(), nextLong(), nextLong())
-        Mockito.`when`(opponentDao.findAllOpponentsWithReal(anyLong()))
+        Mockito.`when`(opponentDao.findAllOpponentsCreatedBy(anyLong()))
                 .thenReturn(listOf(randomOpponent(ids[0]), randomOpponent(ids[1]), randomOpponent()))
 
         val allExists = opponentService.allExists(nextLong(), ids)
@@ -58,6 +58,6 @@ class OpponentServiceTest {
     }
 
 
-    private fun randomOpponent(id: Id = nextLong()) = Opponent(id, nextLong(), randomAlphabetic(11))
+    private fun randomOpponent(id: Id = nextLong()) = Opponent(id, randomAlphabetic(11), nextLong())
 
 }

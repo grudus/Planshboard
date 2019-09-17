@@ -1,6 +1,7 @@
 package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.AbstractDatabaseTest
+import com.grudus.planshboard.commons.Id
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.Assertions.*
@@ -15,7 +16,7 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
 
     @Test
     fun `should save opponent and return id`() {
-        val id = opponentDao.addOpponent(userId, randomAlphabetic(11))
+        val id = opponentDao.addOpponent(randomAlphabetic(11), userId)
 
         assertNotNull(id)
     }
@@ -24,39 +25,40 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
     fun `should find all opponents for user`() {
         val count = 3
         (0 until count).map { randomAlphabetic(5 + it) }
-                .forEach { opponentDao.addOpponent(userId, it) }
-        opponentDao.addOpponent(addUser().id!!, randomAlphabetic(11))
+                .forEach { opponentDao.addOpponent(it, userId) }
+        opponentDao.addOpponent(randomAlphabetic(11), addUser().id!!)
 
-        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
+        val opponentsWithCreator = opponentDao.findAllOpponentsCreatedBy(userId)
 
-        assertEquals(3, opponents.size)
+        assertEquals(4, opponentsWithCreator.size)
     }
 
     @Test
-    fun `should return empty list when no opponents for user`() {
+    fun `should return only creator when no opponents for user`() {
         (0 until 10).map { randomAlphabetic(it + 4) }
-                .forEach { opponentDao.addOpponent(userId, it) }
+                .forEach { opponentDao.addOpponent(it, userId) }
 
-        val opponents = opponentDao.findAllOpponentsWithoutReal(addUser().id!!)
+        val createdBy = addUser().id!!
+        val opponents = opponentDao.findAllOpponentsCreatedBy(createdBy)
 
-        assertTrue(opponents.isEmpty())
+        assertOnlyCreatorExists(opponents, createdBy)
     }
 
     @Test
-    fun `should return empty list when no opponents at all`() {
-        val opponents = opponentDao.findAllOpponentsWithoutReal(userId)
+    fun `should return only creator when no opponents at all`() {
+        val opponents = opponentDao.findAllOpponentsCreatedBy(userId)
 
-        assertTrue(opponents.isEmpty())
+        assertOnlyCreatorExists(opponents)
     }
 
     @Test
     fun `should not be able to save save opponent's name for user twice`() {
         val name = randomAlphabetic(11)
 
-        opponentDao.addOpponent(userId, name)
+        opponentDao.addOpponent(name, userId)
 
         assertThrows(DataAccessException::class.java) {
-            opponentDao.addOpponent(userId, name)
+            opponentDao.addOpponent(name, userId)
         }
     }
 
@@ -65,27 +67,32 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         val name = randomAlphabetic(11)
         val newUserId = addUser().id!!
 
-        opponentDao.addOpponent(userId, name)
-        opponentDao.addOpponent(newUserId, name)
+        opponentDao.addOpponent(name, userId)
+        opponentDao.addOpponent(name, newUserId)
     }
 
     @Test
     fun `should always has opponent when including real ones`() {
-        val opponents = opponentDao.findAllOpponentsWithReal(userId)
+        val opponents = opponentDao.findAllOpponentsCreatedBy(userId)
 
         assertEquals(1, opponents.size)
     }
-
 
     @Test
     fun `should find opponents with current user`() {
         val count = 3
         (0 until count).map { randomAlphabetic(4 + it) }
-                .forEach { opponentDao.addOpponent(userId, it) }
+                .forEach { opponentDao.addOpponent(it, userId) }
 
-        val opponents = opponentDao.findAllOpponentsWithReal(userId)
+        val opponents = opponentDao.findAllOpponentsCreatedBy(userId)
 
         assertEquals(count + 1, opponents.size)
+    }
+
+
+    private fun assertOnlyCreatorExists(opponents: List<Opponent>, createdBy: Id = userId) {
+        assertEquals(1, opponents.size)
+        assertEquals(createdBy, opponents[0].pointingToUser)
     }
 
 }

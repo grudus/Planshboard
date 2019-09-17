@@ -41,7 +41,7 @@ constructor(private val dsl: DSLContext) {
                     .join(OPPONENTS).on(OPPONENTS.ID.eq(PLAYS_RESULTS.OPPONENT_ID))
                     .join(PLAYS).on(PLAYS.ID.eq(PLAYS_RESULTS.PLAY_ID))
                     .join(BOARDGAMES).on(BOARDGAMES.ID.eq(PLAYS.BOARDGAME_ID))
-                    .where(OPPONENTS.USER_ID.eq(userId)).and(PLAYS_RESULTS.POSITION.eq(position))
+                    .where(OPPONENTS.CREATED_BY.eq(userId)).and(PLAYS_RESULTS.POSITION.eq(position))
                     .groupBy(OPPONENTS.ID)
                     .fetch { record ->
                         val (opponentId, opponentName, count) = DbResult3(record)

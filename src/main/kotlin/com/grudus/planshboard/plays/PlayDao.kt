@@ -17,7 +17,7 @@ class PlayDao
 constructor(private val dsl: DSLContext) {
 
     fun findOpponentsForPlay(playId: Id): List<Opponent> =
-            dsl.select(OPPONENTS.ID, OPPONENTS.USER_ID, OPPONENTS.NAME)
+            dsl.select(OPPONENTS.ID, OPPONENTS.NAME, OPPONENTS.CREATED_BY)
                     .from(PLAYS_RESULTS)
                     .join(OPPONENTS).onKey()
                     .join(PLAYS).onKey()

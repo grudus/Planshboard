@@ -14,6 +14,6 @@ constructor(private val userService: UserService) {
 
     @GetMapping("/current")
     fun getCurrentUser(authenticatedUser: AuthenticatedUser): UserDto =
-            UserDto.fromUser(authenticatedUser)
+            userService.getCurrentUser(authenticatedUser)
 
 }

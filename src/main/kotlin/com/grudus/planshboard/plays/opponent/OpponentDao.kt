@@ -36,4 +36,9 @@ constructor(private val dsl: DSLContext) {
                     .where(OPPONENTS.CREATED_BY.eq(createdBy))
                     .fetchInto(Opponent::class.java)
 
+    fun findOpponentPointingToCurrentUser(currentUserId: Id): Opponent =
+            dsl.selectFrom(OPPONENTS)
+                    .where(OPPONENTS.CREATED_BY.eq(currentUserId).and(OPPONENTS.POINTING_TO_USER.eq(currentUserId)))
+                    .fetchOneInto(Opponent::class.java)
+
 }

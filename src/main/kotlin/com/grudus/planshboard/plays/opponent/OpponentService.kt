@@ -1,6 +1,7 @@
 package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.opponent.OpponentDto.Companion.fromOpponent
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -20,7 +21,7 @@ constructor(private val opponentDao: OpponentDao) {
 
     fun findAll(userId: Id): List<OpponentDto> =
             opponentDao.findAllOpponentsCreatedBy(userId)
-                    .map { OpponentDto(it.id!!, it.name) }
+                    .map(::fromOpponent)
 
     fun exists(currentUserId: Id, name: String): Boolean =
             opponentDao.findByName(name, currentUserId) != null
@@ -33,4 +34,9 @@ constructor(private val opponentDao: OpponentDao) {
 
     fun allDoNotExist(currentUserId: Id, names: List<String>): Boolean =
             names.none { name -> exists(currentUserId, name) }
+
+    fun findOpponentPointingToCurrentUser(currentUserId: Id): OpponentDto =
+            fromOpponent(
+                    opponentDao.findOpponentPointingToCurrentUser(currentUserId)
+            )
 }

@@ -2,6 +2,7 @@ package com.grudus.planshboard.user
 
 import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.USERS_URL
+import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -16,5 +17,6 @@ internal class UserControllerTest : AbstractControllerTest() {
         get("$baseUrl/current")
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.name").value(authentication.name))
+                .andExpect(jsonPath("$.opponentEntityId", notNullValue()))
     }
 }

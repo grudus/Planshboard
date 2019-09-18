@@ -89,6 +89,25 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         assertEquals(count + 1, opponents.size)
     }
 
+    @Test
+    fun `should find opponent entity pointing to current user`() {
+        (0 until 10).forEach { _ -> opponentDao.addOpponent(randomAlphabetic(11), userId) }
+        val newUserId = addUser().id!!
+        (0 until 10).forEach { _ -> opponentDao.addOpponent(randomAlphabetic(11), newUserId) }
+
+        val opponent = opponentDao.findOpponentPointingToCurrentUser(newUserId)
+
+        assertEquals(newUserId, opponent.createdBy)
+        assertEquals(newUserId, opponent.pointingToUser)
+    }
+
+    @Test
+    fun `should find opponent entity pointing to current user when no other opponents`() {
+        val opponent = opponentDao.findOpponentPointingToCurrentUser(userId)
+
+        assertEquals(userId, opponent.createdBy)
+        assertEquals(userId, opponent.pointingToUser)
+    }
 
     private fun assertOnlyCreatorExists(opponents: List<Opponent>, createdBy: Id = userId) {
         assertEquals(1, opponents.size)

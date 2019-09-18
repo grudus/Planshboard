@@ -1,19 +1,24 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.MockitoExtension
+import com.grudus.planshboard.configuration.security.AuthenticatedUser
+import com.grudus.planshboard.plays.opponent.OpponentDto
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
 import com.grudus.planshboard.user.auth.InsertedUserResult
+import org.apache.commons.lang3.RandomStringUtils.random
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextLong
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDateTime.now
+import kotlin.random.Random
 
 @ExtendWith(MockitoExtension::class)
 internal class UserServiceTest {
@@ -74,5 +79,15 @@ internal class UserServiceTest {
     fun `should detect username doesn't already exists`() {
         `when`(userDao.findByUsername(anyString())).thenReturn(null)
         assertFalse(userService.usernameExists(randomAlphabetic(11)))
+    }
+
+    @Test
+    fun `should get current user with opponent entity id`() {
+        val opponent = OpponentDto(Random.nextLong(), randomAlphabetic(11))
+        `when`(opponentService.findOpponentPointingToCurrentUser(anyLong())).thenReturn(opponent)
+
+        val currentUser = userService.getCurrentUser(AuthenticatedUser(nextLong(), random(11), emptyList()))
+
+        assertEquals(opponent.id, currentUser.opponentEntityId)
     }
 }

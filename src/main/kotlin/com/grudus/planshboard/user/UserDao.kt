@@ -1,6 +1,7 @@
 package com.grudus.planshboard.user
 
 import com.grudus.planshboard.Tables.USERS
+import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.user.auth.InsertedUserResult
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,4 +25,9 @@ constructor(private val dsl: DSLContext) {
                 .let {record ->
                     InsertedUserResult(record.id, record.registerDate)
                 }
+
+    fun findById(id: Id): User? =
+            dsl.selectFrom(USERS)
+                    .where(USERS.ID.eq(id))
+                    .fetchOneInto(User::class.java)
 }

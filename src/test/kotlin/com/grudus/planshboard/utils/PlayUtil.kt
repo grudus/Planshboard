@@ -14,7 +14,6 @@ class PlayUtil
 @Autowired
 constructor(private val playDao: PlayDao){
 
-
     fun addPlay(boardGameId: Id,
                 opponents: List<Id>,
                 opponentsMapper: (Id, Id) -> PlayResult = {id, playId -> PlayResult(playId, id, null, null) },

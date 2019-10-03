@@ -1,5 +1,6 @@
 package com.grudus.planshboard.user
 
+import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
@@ -16,6 +17,9 @@ constructor(private val userDao: UserDao,
 
     fun findByUsername(username: String): User? =
             userDao.findByUsername(username)
+
+    fun findById(id: Id): User? =
+            userDao.findById(id)
 
     fun registerNewUser(addUserRequest: AddUserRequest): User {
         val encodedPassword = passwordEncoder.encode(addUserRequest.password)

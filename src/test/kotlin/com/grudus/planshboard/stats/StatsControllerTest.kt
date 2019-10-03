@@ -46,14 +46,14 @@ constructor(
     @Test
     fun `should count board games`() {
         val boardGamesCount = 5
-        boardGames(boardGamesCount)
+        boardGamesWithPlays(boardGamesCount)
 
         get(baseUrl)
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.boardGamesCount").value(boardGamesCount))
-                .andExpect(jsonPath("$.allPlaysCount").value(0))
-                .andExpect(jsonPath("$.playPositionsPerOpponentCount", empty<Any>()))
-                .andExpect(jsonPath("$.playsPerBoardGameCount", empty<Any>()))
+                .andExpect(jsonPath("$.allPlaysCount").value(boardGamesCount))
+                .andExpect(jsonPath("$.playPositionsPerOpponentCount", hasSize<Int>(1)))
+                .andExpect(jsonPath("$.playsPerBoardGameCount", hasSize<Int>(boardGamesCount)))
     }
 
 
@@ -64,7 +64,7 @@ constructor(
         val boardGames = boardGames(gamesCount)
 
         repeat(gamesCount) { i ->
-            playsUtil.addPlays(boardGames[i], opponents(), playsCount)
+            playsUtil.addPlays(boardGames[i], opponentsWithUser(), playsCount)
         }
 
         get(baseUrl)
@@ -89,7 +89,7 @@ constructor(
                 mapOf(opponents[0] to 1, opponents[1] to 2)
         ).forEach { result: Map<Id, Int> ->
             playsUtil.addPlay(boardGames()[0], opponents, { id, playId ->
-                PlayResult(playId, id, null, result[id]!!)
+                PlayResult(playId, id, null, result.getValue(id))
             })
         }
 
@@ -102,8 +102,11 @@ constructor(
     }
 
 
-    private fun opponents(count: Int = 5): List<Id> =
-            opponentsUtil.addOpponents(userId, count)
+    private fun opponentsWithUser(count: Int = 5): List<Id> =
+            opponentsUtil.addOpponents(userId, count - 1) + opponentsUtil.asOpponent(userId)
+
+    private fun boardGamesWithPlays(count: Int = 1): List<Id> =
+            boardGameUtil.addRandomBoardGamesWithPlay(userId, count)
 
     private fun boardGames(count: Int = 1): List<Id> =
             boardGameUtil.addRandomBoardGames(userId, count)

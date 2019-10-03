@@ -12,10 +12,10 @@ constructor(private val gamesStatsDao: GamesStatsDao,
             private val playsStatsDao: PlaysStatsDao) {
 
 
-    fun generateStats(userId: Id): StatsDto = StatsDto(
-            boardGamesCount = gamesStatsDao.countAllGames(userId),
-            allPlaysCount = playsStatsDao.countAllPlays(userId),
+    fun generateStats(userId: Id, opponentId: Id): StatsDto = StatsDto(
+            boardGamesCount = gamesStatsDao.countAllGames(opponentId),
+            allPlaysCount = playsStatsDao.countAllPlays(opponentId),
             playPositionsPerOpponentCount = playsStatsDao.countPlayPositionPerOpponent(userId),
-            playsPerBoardGameCount = playsStatsDao.countPlaysPerBoardGames(userId)
+            playsPerBoardGameCount = playsStatsDao.countPlaysPerBoardGames(opponentId)
     )
 }

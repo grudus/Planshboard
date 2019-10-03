@@ -9,6 +9,7 @@ import com.grudus.planshboard.stats.models.PlaysCount
 import com.grudus.planshboard.utils.jooq.DbResult3
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.count
+import org.jooq.impl.DSL.countDistinct
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 
@@ -17,18 +18,19 @@ class PlaysStatsDao
 @Autowired
 constructor(private val dsl: DSLContext) {
 
-    fun countAllPlays(userId: Id): Int =
-            dsl.selectCount()
+    fun countAllPlays(opponentId: Id): Int =
+            dsl.select(countDistinct(PLAYS.ID))
                     .from(PLAYS)
-                    .join(BOARDGAMES).onKey()
-                    .where(BOARDGAMES.USER_ID.eq(userId))
+                    .join(PLAYS_RESULTS).onKey()
+                    .where(PLAYS_RESULTS.OPPONENT_ID.eq(opponentId))
                     .fetchOneInto(Int::class.java)
 
-    fun countPlaysPerBoardGames(userId: Id): List<PlaysCount> =
+    fun countPlaysPerBoardGames(opponentId: Id): List<PlaysCount> =
             dsl.select(BOARDGAMES.ID, BOARDGAMES.NAME, count())
                     .from(PLAYS)
                     .join(BOARDGAMES).onKey()
-                    .where(BOARDGAMES.USER_ID.eq(userId))
+                    .join(PLAYS_RESULTS).on(PLAYS_RESULTS.PLAY_ID.eq(PLAYS.ID))
+                    .where(PLAYS_RESULTS.OPPONENT_ID.eq(opponentId))
                     .groupBy(BOARDGAMES.ID)
                     .fetch { record ->
                         val (boardGameId, boardGameName, count) = DbResult3(record)

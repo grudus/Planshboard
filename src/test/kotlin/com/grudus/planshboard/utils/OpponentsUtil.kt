@@ -15,4 +15,6 @@ constructor(private val opponentService: OpponentService){
             (0 until count).map { randomAlphabetic(11 + it) }
                     .map { name -> opponentService.addOpponent(userId, name) }
 
+    fun asOpponent(userId: Id): Id =
+            opponentService.findOpponentPointingToCurrentUser(userId).id
 }

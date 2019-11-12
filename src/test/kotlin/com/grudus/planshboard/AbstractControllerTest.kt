@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import com.grudus.planshboard.configuration.security.filters.StatelessAuthenticationFilter
 import com.grudus.planshboard.configuration.security.token.TokenAuthenticationService
-import com.grudus.planshboard.configuration.security.token.TokenAuthenticationService.Companion.AUTH_COOKIE_NAME
+import com.grudus.planshboard.configuration.security.token.TokenAuthenticationService.Companion.AUTH_HEADER_NAME
 import com.grudus.planshboard.configuration.security.token.TokenHandler
 import com.grudus.planshboard.user.User
 import com.grudus.planshboard.user.UserService
@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
-import javax.servlet.http.Cookie
 
 abstract class AbstractControllerTest : SpringBasedTest() {
 
@@ -125,7 +124,7 @@ abstract class AbstractControllerTest : SpringBasedTest() {
 
     private fun performRequestWithAuth(requestBuilders: MockHttpServletRequestBuilder): ResultActions {
         val token = authentication.token
-        return mockMvc.perform(requestBuilders.cookie(Cookie(AUTH_COOKIE_NAME, token)).principal(authentication))
+        return mockMvc.perform(requestBuilders.header(AUTH_HEADER_NAME, token).principal(authentication))
     }
 
     private fun setupContext() {

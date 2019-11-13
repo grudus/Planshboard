@@ -20,15 +20,15 @@ create_user() {
 }
 
 login() {
-    curl --silent --output /dev/null -i -s -X POST -d "username=$1&password=$2" -c - "$BASE_URL/api/auth/login" | grep HttpOnly | awk '{print $7}'
+    curl -i -s -X POST -d "username=$1&password=$2" "$BASE_URL/api/auth/login" | grep "Bearer" | cut -c 16-
 }
 
 authorized_post_request() {
-    curl -s -H "Content-Type: application/json" --cookie "$AUTH_HEADER=$3" -d "$2" "$BASE_URL$1"
+    curl -s -H "Content-Type: application/json" -H "$AUTH_HEADER: $3" -d "$2" "$BASE_URL$1"
 }
 
 authorized_get_request() {
-    curl -s -H "Content-Type: application/json" --cookie "$AUTH_HEADER=$3" "$BASE_URL$1"
+    curl -s -H "Content-Type: application/json" -H "$AUTH_HEADER: $2" "$BASE_URL$1"
 }
 
 json_val() {
@@ -70,22 +70,22 @@ create_user ${USERNAME} ${PASSWORD}
 echo -e "User created\n"
 
 echo "Login ..."
-AUTH_COOKIE=$(login ${USERNAME} ${PASSWORD})
-echo -e "$AUTH_COOKIE"
+AUTH_TOKEN=$(login ${USERNAME} ${PASSWORD})
+echo -e "User logged\n"
 
 echo "Adding opponents ..."
-add_opponents "${AUTH_COOKIE}"
+add_opponents "${AUTH_TOKEN}"
 echo -e "Opponents added"
 
 echo "Adding board games ..."
-add_board_games "${AUTH_COOKIE}"
+add_board_games "${AUTH_TOKEN}"
 echo -e "Board games added"
 
 for i in "${BOARD_GAME_IDS[@]}"; do
     PLAYS=$((RANDOM % 10))
     echo "Adding $PLAYS plays to boardgame $i ..."
     for p in $(seq 0 ${PLAYS}); do
-        add_play "${i}" "${AUTH_COOKIE}"
+        add_play "${i}" "${AUTH_TOKEN}"
     done
     echo -e "Plays added"
 done

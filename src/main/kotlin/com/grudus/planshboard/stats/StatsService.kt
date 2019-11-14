@@ -1,6 +1,7 @@
 package com.grudus.planshboard.stats
 
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.stats.models.OpponentCount
 import com.grudus.planshboard.stats.models.StatsDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -12,10 +13,19 @@ constructor(private val gamesStatsDao: GamesStatsDao,
             private val playsStatsDao: PlaysStatsDao) {
 
 
-    fun generateStats(userId: Id, opponentId: Id): StatsDto = StatsDto(
-            boardGamesCount = gamesStatsDao.countAllGames(opponentId),
-            allPlaysCount = playsStatsDao.countAllPlays(opponentId),
-            playPositionsPerOpponentCount = playsStatsDao.countPlayPositionPerOpponent(userId),
-            playsPerBoardGameCount = playsStatsDao.countPlaysPerBoardGames(opponentId)
-    )
+    fun generateStats(userId: Id, opponentId: Id): StatsDto {
+        val playPositionsPerOpponentCount: List<OpponentCount> = playsStatsDao.countPlayPositionPerOpponent(userId)
+        val opponentWins = findOpponentWins(playPositionsPerOpponentCount, opponentId)
+        return StatsDto(
+                boardGamesCount = gamesStatsDao.countAllGames(opponentId),
+                allPlaysCount = playsStatsDao.countAllPlays(opponentId),
+                playPositionsPerOpponentCount = playPositionsPerOpponentCount,
+                playsPerBoardGameCount = playsStatsDao.countPlaysPerBoardGames(opponentId),
+                opponentWins = opponentWins
+        )
+    }
+
+    private fun findOpponentWins(playPositionsPerOpponentCount: List<OpponentCount>, opponentId: Id): Int =
+            playPositionsPerOpponentCount.find { it.opponent.id == opponentId }
+                    ?.count ?: 0
 }

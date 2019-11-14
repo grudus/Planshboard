@@ -21,6 +21,7 @@ class CorsFilter
         response.setHeader("Access-Control-Allow-Origin", allowedOrigin)
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
         response.setHeader("Access-Control-Allow-Headers", "withCredentials, content-type, " + TokenAuthenticationService.AUTH_HEADER_NAME)
+        response.setHeader("Access-Control-Allow-Credentials", "true")
         response.setHeader("Access-Control-Expose-Headers", TokenAuthenticationService.AUTH_HEADER_NAME)
         response.setHeader("withCredentials", "true")
 

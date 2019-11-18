@@ -1,6 +1,7 @@
 package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.plays.opponent.model.AddOpponentRequest
 import com.grudus.planshboard.user.auth.AuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

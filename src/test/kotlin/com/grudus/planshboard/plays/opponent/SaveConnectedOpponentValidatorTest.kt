@@ -3,9 +3,10 @@ package com.grudus.planshboard.plays.opponent
 import com.grudus.planshboard.MockitoExtension
 import com.grudus.planshboard.commons.RestKeys.EMPTY_NAME
 import com.grudus.planshboard.commons.RestKeys.NAME_EXISTS
-import com.grudus.planshboard.commons.RestKeys.OPPONENTS_EXISTS
 import com.grudus.planshboard.commons.RestKeys.USER_ASSIGNED_TO_ANOTHER_OPPONENT
 import com.grudus.planshboard.commons.RestKeys.USER_NOT_EXIST
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.SaveConnectedOpponentRequest
 import com.grudus.planshboard.user.User
 import com.grudus.planshboard.user.UserService
 import com.grudus.planshboard.user.auth.AuthenticationService

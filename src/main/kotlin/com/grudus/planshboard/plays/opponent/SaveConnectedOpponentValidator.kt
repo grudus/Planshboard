@@ -1,6 +1,8 @@
 package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.SaveConnectedOpponentRequest
 import com.grudus.planshboard.user.User
 import com.grudus.planshboard.user.UserService
 import com.grudus.planshboard.user.auth.AuthenticationService

@@ -3,7 +3,7 @@ package com.grudus.planshboard.plays
 import com.grudus.planshboard.Tables.*
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.plays.model.*
-import com.grudus.planshboard.plays.opponent.Opponent
+import com.grudus.planshboard.plays.opponent.model.Opponent
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository

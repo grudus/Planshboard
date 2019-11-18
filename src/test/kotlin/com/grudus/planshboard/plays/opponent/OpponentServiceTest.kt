@@ -2,6 +2,7 @@ package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.MockitoExtension
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.opponent.model.Opponent
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.apache.commons.lang3.RandomUtils.nextLong
 import org.junit.jupiter.api.Assertions.*

@@ -1,7 +1,11 @@
 package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.Tables.OPPONENTS
+import com.grudus.planshboard.Tables.USERS
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.opponent.model.ConnectedOpponentDto
+import com.grudus.planshboard.plays.opponent.model.Opponent
+import com.grudus.planshboard.user.UserDto
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,5 +61,18 @@ constructor(private val dsl: DSLContext) {
                 .where(OPPONENTS.ID.eq(existingOpponentId))
                 .execute()
     }
+
+    fun findAllWithConnectedUsers(createdBy: Id): List<ConnectedOpponentDto> =
+            dsl.select(OPPONENTS.ID.`as`("opponentId"),
+                    OPPONENTS.NAME.`as`("opponentName"),
+                    USERS.ID.`as`("userId"),
+                    USERS.NAME.`as`("userName"))
+                    .from(OPPONENTS)
+                    .leftJoin(USERS).on(OPPONENTS.POINTING_TO_USER.eq(USERS.ID))
+                    .where(OPPONENTS.CREATED_BY.eq(createdBy))
+                    .fetch { (opponentId, opponentName, userId, userName) ->
+                        val user = if (userId == null) null else UserDto(userId, userName)
+                        ConnectedOpponentDto(opponentId, opponentName, user)
+                    }
 
 }

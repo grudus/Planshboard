@@ -2,6 +2,7 @@ package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.AbstractDatabaseTest
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.opponent.model.Opponent
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.Assertions.*
@@ -147,6 +148,7 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
 
         val opponent = opponentDao.findOpponentByConnectedUser(addUser().id!!, userId)
 
+
         assertNull(opponent)
     }
 
@@ -171,6 +173,23 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         val opponent = opponentDao.findById(id)
 
         assertEquals(newName, opponent!!.name)
+    }
+
+    @Test
+    fun `should find all opponents with pointing users`() {
+        val newUserId = addUser().id!!
+        opponentDao.addOpponent(randomAlphabetic(11), userId)
+        opponentDao.addOpponentPointingToUser(randomAlphabetic(11), userId, newUserId)
+        opponentDao.addOpponent(randomAlphabetic(11), newUserId)
+
+        val opponents = opponentDao.findAllWithConnectedUsers(userId)
+                .sortedByDescending { it.id }
+
+        // + one, default user
+        assertEquals(3, opponents.size)
+        assertEquals(newUserId, opponents[0].connectedUser!!.id)
+        assertNull(opponents[1].connectedUser)
+        assertEquals(userId, opponents[2].connectedUser!!.id)
     }
 
     private fun assertOnlyCreatorExists(opponents: List<Opponent>, createdBy: Id = userId) {

@@ -5,7 +5,7 @@ import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import com.grudus.planshboard.plays.model.SavePlayRequest
 import com.grudus.planshboard.plays.model.PlayResponse
-import com.grudus.planshboard.plays.opponent.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus.*

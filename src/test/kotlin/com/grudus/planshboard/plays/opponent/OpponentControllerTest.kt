@@ -4,6 +4,8 @@ import com.grudus.planshboard.AbstractControllerTest
 import com.grudus.planshboard.OPPONENTS_URL
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.commons.RestKeys
+import com.grudus.planshboard.plays.opponent.model.AddOpponentRequest
+import com.grudus.planshboard.plays.opponent.model.SaveConnectedOpponentRequest
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.BeforeEach

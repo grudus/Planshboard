@@ -3,7 +3,7 @@ package com.grudus.planshboard.stats
 import com.grudus.planshboard.Tables.*
 import com.grudus.planshboard.boardgame.BoardGameDto
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.plays.opponent.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import com.grudus.planshboard.stats.models.OpponentCount
 import com.grudus.planshboard.stats.models.PlaysCount
 import com.grudus.planshboard.utils.jooq.DbResult3

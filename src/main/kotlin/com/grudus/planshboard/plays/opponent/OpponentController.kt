@@ -2,6 +2,10 @@ package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.commons.IdResponse
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
+import com.grudus.planshboard.plays.opponent.model.AddOpponentRequest
+import com.grudus.planshboard.plays.opponent.model.ConnectedOpponentDto
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.SaveConnectedOpponentRequest
 import com.grudus.planshboard.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +20,6 @@ import javax.validation.Valid
 class OpponentController
 @Autowired
 constructor(private val opponentService: OpponentService,
-            private val opponentSecurityService: OpponentSecurityService,
             private val addOpponentValidator: AddOpponentValidator,
             private val userService: UserService,
             private val saveConnectedOpponentValidator: SaveConnectedOpponentValidator) {
@@ -31,8 +34,8 @@ constructor(private val opponentService: OpponentService,
     }
 
     @GetMapping
-    fun getAllOpponents(authenticatedUser: AuthenticatedUser): List<OpponentDto> =
-            opponentService.findAll(authenticatedUser.userId)
+    fun getAllOpponents(authenticatedUser: AuthenticatedUser): List<ConnectedOpponentDto> =
+            opponentService.findAllWithConnectedUsers(authenticatedUser.userId)
 
     @PostMapping(params = ["withUser"])
     @ResponseStatus(HttpStatus.CREATED)

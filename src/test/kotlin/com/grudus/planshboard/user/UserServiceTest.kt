@@ -2,7 +2,7 @@ package com.grudus.planshboard.user
 
 import com.grudus.planshboard.MockitoExtension
 import com.grudus.planshboard.configuration.security.AuthenticatedUser
-import com.grudus.planshboard.plays.opponent.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import com.grudus.planshboard.plays.opponent.OpponentService
 import com.grudus.planshboard.user.auth.AddUserRequest
 import com.grudus.planshboard.user.auth.InsertedUserResult

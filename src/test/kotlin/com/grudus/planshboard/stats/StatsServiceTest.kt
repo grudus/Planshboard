@@ -1,7 +1,7 @@
 package com.grudus.planshboard.stats
 
 import com.grudus.planshboard.MockitoExtension
-import com.grudus.planshboard.plays.opponent.OpponentDto
+import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import com.grudus.planshboard.stats.models.OpponentCount
 import org.apache.commons.lang3.RandomStringUtils.randomAlphabetic
 import org.junit.jupiter.api.Assertions.assertEquals

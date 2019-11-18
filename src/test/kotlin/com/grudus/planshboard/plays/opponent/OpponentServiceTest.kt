@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 
 @ExtendWith(MockitoExtension::class)
 class OpponentServiceTest {
@@ -56,6 +57,35 @@ class OpponentServiceTest {
         val allExists = opponentService.allExists(nextLong(), ids)
         assertFalse(allExists)
     }
+
+    @Test
+    fun `should detect that does not belong to another user when no opponent`() {
+        `when`(opponentDao.findById(anyLong())).thenReturn(null)
+
+        val belongsToAnother = opponentService.belongsToAnotherUser(nextLong(), nextLong())
+
+        assertFalse(belongsToAnother)
+    }
+
+    @Test
+    fun `should detect that does not belong to another user when created by current user`() {
+        val userId = nextLong()
+        `when`(opponentDao.findById(anyLong())).thenReturn(Opponent(nextLong(), randomAlphabetic(11), userId))
+
+        val belongsToAnother = opponentService.belongsToAnotherUser(userId, nextLong())
+
+        assertFalse(belongsToAnother)
+    }
+
+    @Test
+    fun `should detect that belongs to another user`() {
+        `when`(opponentDao.findById(anyLong())).thenReturn(Opponent(nextLong(), randomAlphabetic(11), nextLong()))
+
+        val belongsToAnother = opponentService.belongsToAnotherUser(nextLong(), nextLong())
+
+        assertTrue(belongsToAnother)
+    }
+
 
 
     private fun randomOpponent(id: Id = nextLong()) = Opponent(id, randomAlphabetic(11), nextLong())

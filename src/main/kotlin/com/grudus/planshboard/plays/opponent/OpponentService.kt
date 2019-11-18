@@ -54,4 +54,14 @@ constructor(private val opponentDao: OpponentDao) {
     fun findOpponentByConnectedUser(createdBy: Id, pointingTo: Id?): OpponentDto? =
             opponentDao.findOpponentByConnectedUser(createdBy, pointingTo)
                     ?.let { fromOpponent(it) }
+
+    fun editOpponent(request: SaveConnectedOpponentRequest, pointingToUser: Id?) {
+        requireNotNull(request.existingOpponentId) {"Cannot update opponent without id $request"}
+        opponentDao.editOpponent(request.existingOpponentId, request.opponentName, pointingToUser)
+    }
+
+    fun belongsToAnotherUser(userId: Id, opponentId: Id): Boolean {
+        val opponent = opponentDao.findById(opponentId)
+        return !(opponent == null || opponent.createdBy == userId)
+    }
 }

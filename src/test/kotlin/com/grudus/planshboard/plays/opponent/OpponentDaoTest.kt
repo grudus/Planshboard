@@ -160,6 +160,19 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         }
     }
 
+    @Test
+    fun `should be able to edit opponent`() {
+        val oldName = randomAlphabetic(11)
+        val newName = randomAlphabetic(11)
+        val id = opponentDao.addOpponent(oldName, userId)
+
+        opponentDao.editOpponent(id, newName)
+
+        val opponent = opponentDao.findById(id)
+
+        assertEquals(newName, opponent!!.name)
+    }
+
     private fun assertOnlyCreatorExists(opponents: List<Opponent>, createdBy: Id = userId) {
         assertEquals(1, opponents.size)
         assertEquals(createdBy, opponents[0].pointingToUser)

@@ -50,4 +50,12 @@ constructor(private val dsl: DSLContext) {
                     .where(condition)
                     .fetchOneInto(Opponent::class.java)
 
+    fun editOpponent(existingOpponentId: Id, opponentName: String, pointingToUser: Id? = null) {
+        dsl.update(OPPONENTS)
+                .set(OPPONENTS.NAME, opponentName)
+                .set(OPPONENTS.POINTING_TO_USER, pointingToUser)
+                .where(OPPONENTS.ID.eq(existingOpponentId))
+                .execute()
+    }
+
 }

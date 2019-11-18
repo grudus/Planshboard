@@ -6,6 +6,7 @@ import com.grudus.planshboard.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -15,6 +16,7 @@ import javax.validation.Valid
 class OpponentController
 @Autowired
 constructor(private val opponentService: OpponentService,
+            private val opponentSecurityService: OpponentSecurityService,
             private val addOpponentValidator: AddOpponentValidator,
             private val userService: UserService,
             private val saveConnectedOpponentValidator: SaveConnectedOpponentValidator) {
@@ -40,6 +42,16 @@ constructor(private val opponentService: OpponentService,
         val pointingToUser = saveConnectedOpponentRequest.connectedUserName?.let { userService.findByUsername(it) } ?. id
         return IdResponse(opponentService.addOpponent(authenticatedUser.userId, saveConnectedOpponentRequest.opponentName, pointingToUser))
     }
+
+    @PutMapping(params = ["withUser"])
+    @PreAuthorize("@opponentSecurityService.hasAccessToOpponent(#user, #saveConnectedOpponentRequest.existingOpponentId)")
+    fun editOpponent(@RequestBody @Valid saveConnectedOpponentRequest: SaveConnectedOpponentRequest,
+                     user: AuthenticatedUser) {
+        logger.info("Editing existing opponent with connected user: {}", saveConnectedOpponentRequest)
+        val pointingToUser = saveConnectedOpponentRequest.connectedUserName?.let { userService.findByUsername(it) } ?. id
+        return opponentService.editOpponent(saveConnectedOpponentRequest, pointingToUser)
+    }
+
 
     @InitBinder("addOpponentRequest")
     protected fun initEditBinder(binder: WebDataBinder) {

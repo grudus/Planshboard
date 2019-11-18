@@ -79,4 +79,49 @@ class OpponentControllerTest : AbstractControllerTest() {
                 .andExpect(jsonPath("$.[*]", hasSize<Int>(opponentsWithoutCurrentUserCount + 1)))
     }
 
+    @Test
+    fun `should be able to save new opponent without pointing to user`() {
+        val name = randomAlphabetic(11)
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(name))
+                .andExpect(status().isCreated)
+                .andExpect(jsonPath("$.id", notNullValue()))
+    }
+
+    @Test
+    fun `should be able to save new opponent pointing to user`() {
+        val name = randomAlphabetic(11)
+        val newUserName = addUser().name
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(name, newUserName))
+                .andExpect(status().isCreated)
+                .andExpect(jsonPath("$.id", notNullValue()))
+    }
+
+    @Test
+    fun `should not be able to save new opponent pointing to already pointed user`() {
+        val name = randomAlphabetic(11)
+        val newUserName = addUser().name
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(name, newUserName))
+                .andExpect(status().isCreated)
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(randomAlphabetic(11), newUserName))
+                .andExpect(status().isBadRequest)
+                .andExpect(jsonPath("$.codes", hasItem(RestKeys.USER_ASSIGNED_TO_ANOTHER_OPPONENT)))
+    }
+
+    @Test
+    fun `should be able to save new opponent pointing to user pointed by another user`() {
+        val name = randomAlphabetic(11)
+        val newUserName = addUser().name
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(name, newUserName))
+                .andExpect(status().isCreated)
+
+        login()
+
+        post("${baseUrl}?withUser=true", SaveConnectedOpponentRequest(name, newUserName))
+                .andExpect(status().isCreated)
+    }
 }

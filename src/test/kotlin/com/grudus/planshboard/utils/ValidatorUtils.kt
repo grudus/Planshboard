@@ -11,7 +11,15 @@ object ValidatorUtils {
 
     fun assertErrorCodes(error: Errors, vararg codes: String) {
         assertTrue(codes.size == error.errorCount)
-        assertTrue(errorCodes(error).containsAll(listOf(*codes)))
+        val errorCodes = errorCodes(error)
+        val providedCodes = listOf(*codes)
+
+        providedCodes.forEach { code ->
+            assertTrue(errorCodes.contains(code), "Error object does not contains $code code")
+        }
+        errorCodes.forEach {code ->
+            assertTrue(providedCodes.contains(code), "Provided codes does not contain $code code")
+        }
     }
 
     private fun errorCodes(errors: Errors): List<String> =

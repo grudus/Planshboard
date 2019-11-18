@@ -109,6 +109,57 @@ constructor(private val opponentDao: OpponentDao) : AbstractDatabaseTest() {
         assertEquals(userId, opponent.pointingToUser)
     }
 
+    @Test
+    fun `should find opponent by id`() {
+        opponentDao.addOpponent(randomAlphabetic(11), userId)
+        val name = randomAlphabetic(11)
+        val opponentId: Id = opponentDao.addOpponent(name, userId)
+
+        val opponent = opponentDao.findById(opponentId)
+
+        assertNotNull(opponent)
+        assertEquals(opponentId, opponent!!.id)
+        assertEquals(name, opponent.name)
+    }
+
+
+    @Test
+    fun `should find opponent connected to specific user`() {
+        val userId2 = addUser().id!!
+        val name = randomAlphabetic(11)
+        opponentDao.addOpponentPointingToUser(randomAlphabetic(11), userId, addUser().id!!)
+        val opponentId = opponentDao.addOpponentPointingToUser(name, userId, userId2)
+        opponentDao.addOpponent(randomAlphabetic(11), userId)
+
+        val opponent = opponentDao.findOpponentByConnectedUser(userId, userId2)
+
+        assertNotNull(opponent)
+        assertEquals(opponentId, opponent!!.id)
+        assertEquals(name, opponent.name)
+        assertEquals(userId2, opponent.pointingToUser)
+    }
+
+    @Test
+    fun `should not be able to find opponent connected to specific user when other users created entity`() {
+        opponentDao.addOpponentPointingToUser(randomAlphabetic(11), addUser().id!!, userId)
+        opponentDao.addOpponentPointingToUser(randomAlphabetic(11), addUser().id!!, userId)
+        opponentDao.addOpponent(randomAlphabetic(11), userId)
+
+        val opponent = opponentDao.findOpponentByConnectedUser(addUser().id!!, userId)
+
+        assertNull(opponent)
+    }
+
+    @Test
+    fun `should not be able to save 2 opponents pointing to the same user`() {
+        val userId2 = addUser().id!!
+        opponentDao.addOpponentPointingToUser(randomAlphabetic(11), userId, userId2)
+
+        assertThrows(DataAccessException::class.java) {
+            opponentDao.addOpponentPointingToUser(randomAlphabetic(11), userId, userId2)
+        }
+    }
+
     private fun assertOnlyCreatorExists(opponents: List<Opponent>, createdBy: Id = userId) {
         assertEquals(1, opponents.size)
         assertEquals(createdBy, opponents[0].pointingToUser)

@@ -115,7 +115,7 @@ abstract class AbstractControllerTest : SpringBasedTest() {
         return performRequestWithAuth(MockMvcRequestBuilders.delete(url))
     }
 
-    private fun addUser(): User =
+    protected fun addUser(): User =
             userService.registerNewUser(AddUserRequest(randomAlphabetic(32), randomAlphabetic(32)))
 
 

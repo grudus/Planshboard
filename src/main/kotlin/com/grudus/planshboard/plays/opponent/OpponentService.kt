@@ -2,6 +2,7 @@ package com.grudus.planshboard.plays.opponent
 
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.plays.opponent.OpponentDto.Companion.fromOpponent
+import com.grudus.planshboard.user.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -18,6 +19,12 @@ constructor(private val opponentDao: OpponentDao) {
 
     fun addCurrentUserAsOpponent(userId: Id, userName: String) =
             opponentDao.addOpponentPointingToUser(userName, userId, userId)
+
+    fun addOpponent(userId: Id, opponentName: String, pointingToUserId: Id?): Id {
+        return if (pointingToUserId != null)
+            opponentDao.addOpponentPointingToUser(opponentName, userId, pointingToUserId)
+        else opponentDao.addOpponent(opponentName, userId)
+    }
 
     fun findAll(userId: Id): List<OpponentDto> =
             opponentDao.findAllOpponentsCreatedBy(userId)
@@ -39,4 +46,12 @@ constructor(private val opponentDao: OpponentDao) {
             fromOpponent(
                     opponentDao.findOpponentPointingToCurrentUser(currentUserId)
             )
+
+    fun findById(opponentId: Id): OpponentDto? =
+            opponentDao.findById(opponentId)
+                    ?.let { fromOpponent(it) }
+
+    fun findOpponentByConnectedUser(createdBy: Id, pointingTo: Id?): OpponentDto? =
+            opponentDao.findOpponentByConnectedUser(createdBy, pointingTo)
+                    ?.let { fromOpponent(it) }
 }

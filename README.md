@@ -1,6 +1,8 @@
 # Planshboard
 
-![Build Status](https://travis-ci.org/grudus/Planshboard.svg?branch=master)
+[Build Status](https://travis-ci.org/grudus/Planshboard)
+
+![Build Badge](https://travis-ci.org/grudus/Planshboard.svg?branch=master)
 
 ## Development
 

@@ -306,6 +306,11 @@
                                 </customType>
                             </customTypes>
                             <forcedTypes>
+                                <forceType>
+                                    <userType>String</userType>
+                                    <binding>com.grudus.planshboard.utils.jooq.StringBinding</binding>
+                                    <types>.*json.*</types>
+                                </forceType>
                                 <forcedType>
                                     <name>LocalDateTime</name>
                                     <types>datetime</types>

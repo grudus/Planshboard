@@ -66,6 +66,9 @@ constructor(private val opponentDao: OpponentDao) {
         opponentDao.editOpponent(request.existingOpponentId, request.opponentName, pointingToUser)
     }
 
+    fun getPointingToUserId(opponentId: Id): Id? =
+            findById(opponentId)?.pointingToUser
+
     fun belongsToAnotherUser(userId: Id, opponentId: Id): Boolean {
         val opponent = opponentDao.findById(opponentId)
         return !(opponent == null || opponent.createdBy == userId)

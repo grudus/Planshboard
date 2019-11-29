@@ -4,6 +4,7 @@ import com.grudus.planshboard.boardgame.BoardGameNotFoundException
 import com.grudus.planshboard.boardgame.BoardGameService
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.exceptions.ResourceNotFoundException
+import com.grudus.planshboard.notifications.publisher.NotificationPublisher
 import com.grudus.planshboard.plays.model.*
 import com.grudus.planshboard.plays.opponent.model.Opponent
 import com.grudus.planshboard.plays.opponent.OpponentService
@@ -17,7 +18,8 @@ class PlayService
 @Autowired
 constructor(private val playDao: PlayDao,
             private val boardGameService: BoardGameService,
-            private val opponentService: OpponentService) {
+            private val opponentService: OpponentService,
+            private val notificationPublisher: NotificationPublisher) {
 
     fun findOpponentsForPlay(playId: Id): List<Opponent> =
             if (playDao.findById(playId) != null)
@@ -78,10 +80,6 @@ constructor(private val playDao: PlayDao,
         }
 
         playDao.savePlayResults(playResults)
+        notificationPublisher.notifyUsedIsMarkedAsOpponent(userId, playId, results)
     }
-
-    private fun mapResults(results: List<AddPlayResult>): List<PlayOpponentsResponse> =
-            results.map {
-                PlayOpponentsResponse(it.opponentId!!, it.opponentName, it.position, it.points)
-            }
 }

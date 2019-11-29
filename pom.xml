@@ -307,7 +307,7 @@
                             </customTypes>
                             <forcedTypes>
                                 <forceType>
-                                    <userType>String</userType>
+                                    <userType>com.fasterxml.jackson.databind.JsonNode</userType>
                                     <binding>com.grudus.planshboard.utils.jooq.StringBinding</binding>
                                     <types>.*json.*</types>
                                 </forceType>

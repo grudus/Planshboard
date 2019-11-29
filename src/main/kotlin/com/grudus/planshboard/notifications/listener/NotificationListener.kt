@@ -22,6 +22,8 @@ constructor(private val notificationService: NotificationService,
             return
         }
         val pointingToUserId = opponentService.getPointingToUserId(event.result.opponentId!!) ?: return
+        if (pointingToUserId == event.playCreatorId)
+            return
 
         logger.info("Notify user [$pointingToUserId] about added play")
         notificationService.saveUserMarkedAsOpponent(event.playCreatorId, pointingToUserId, event.result)

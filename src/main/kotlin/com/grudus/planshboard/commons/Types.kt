@@ -1,4 +1,6 @@
 package com.grudus.planshboard.commons
 
+import com.fasterxml.jackson.databind.JsonNode
+
 typealias Id = Long
-typealias Json = Map<String, Any?>
+typealias Json = JsonNode

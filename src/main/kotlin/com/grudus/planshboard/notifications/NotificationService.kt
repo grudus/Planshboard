@@ -1,10 +1,8 @@
 package com.grudus.planshboard.notifications
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.commons.Json
+import com.grudus.planshboard.notifications.NotificationDto.Companion.fromNotification
 import com.grudus.planshboard.plays.model.AddPlayResult
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -31,6 +29,9 @@ constructor(private val notificationDao: NotificationDao,
         return save(notification)
     }
 
+    fun findAll(forUserId: Id): List<NotificationDto> =
+            notificationDao.findAllForUser(forUserId)
+                    .map(::fromNotification)
 
     private fun save(notification: Notification): Id =
             notificationDao.save(notification)

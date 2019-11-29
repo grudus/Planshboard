@@ -17,4 +17,9 @@ constructor(private val dsl: DSLContext) {
                     .returning(NOTIFICATIONS.ID)
                     .fetchOne().id
 
+    fun findAllForUser(forUserId: Id): List<Notification> =
+            dsl.selectFrom(NOTIFICATIONS)
+                    .where(NOTIFICATIONS.AVAILABLE_FOR.eq(forUserId))
+                    .fetchInto(Notification::class.java)
+
 }

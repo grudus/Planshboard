@@ -2,7 +2,9 @@ package com.grudus.planshboard.notifications
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.grudus.planshboard.commons.Id
-import com.grudus.planshboard.notifications.NotificationDto.Companion.fromNotification
+import com.grudus.planshboard.notifications.model.NotificationDto.Companion.fromNotification
+import com.grudus.planshboard.notifications.model.Notification
+import com.grudus.planshboard.notifications.model.NotificationDto
 import com.grudus.planshboard.plays.model.AddPlayResult
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -14,7 +16,7 @@ class NotificationService
 constructor(private val notificationDao: NotificationDao,
             private val objectMapper: ObjectMapper) {
 
-    fun saveUserMarkedAsOpponent(createdBy: Id, availableForUser: Id, result: AddPlayResult): Id {
+    fun saveUserMarkedAsOpponent(createdBy: Id, availableForUser: Id, playCreatorName: String, result: AddPlayResult): Id {
         val notification = Notification(
                 availableFor = availableForUser,
                 createdAt = LocalDateTime.now(),
@@ -24,6 +26,7 @@ constructor(private val notificationDao: NotificationDao,
                 additionalData = objectMapper.createObjectNode()
                         .put("points", result.points)
                         .put("position", result.position)
+                        .put("playCreatorName", playCreatorName)
         )
 
         return save(notification)

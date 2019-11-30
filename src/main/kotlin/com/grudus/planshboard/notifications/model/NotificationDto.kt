@@ -1,9 +1,7 @@
-package com.grudus.planshboard.notifications
+package com.grudus.planshboard.notifications.model
 
 import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.commons.Json
-import com.grudus.planshboard.plays.opponent.model.Opponent
-import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import java.time.LocalDateTime
 
 /* val id: Id? = null,

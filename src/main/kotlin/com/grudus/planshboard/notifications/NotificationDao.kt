@@ -2,6 +2,7 @@ package com.grudus.planshboard.notifications
 
 import com.grudus.planshboard.Tables.NOTIFICATIONS
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.notifications.model.Notification
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository

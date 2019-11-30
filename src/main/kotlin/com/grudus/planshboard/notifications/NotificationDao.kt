@@ -21,6 +21,7 @@ constructor(private val dsl: DSLContext) {
     fun findAllForUser(forUserId: Id): List<Notification> =
             dsl.selectFrom(NOTIFICATIONS)
                     .where(NOTIFICATIONS.AVAILABLE_FOR.eq(forUserId))
+                    .orderBy(NOTIFICATIONS.CREATED_AT.desc())
                     .fetchInto(Notification::class.java)
 
     fun delete(id: Id) =

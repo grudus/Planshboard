@@ -78,8 +78,10 @@ abstract class AbstractControllerTest : SpringBasedTest() {
                     .contentType(APPLICATION_JSON)
                     .content(toJson(requestBody)))
 
-    protected fun post(url: String, requestBody: Any): ResultActions =
-            performRequestWithAuth(MockMvcRequestBuilders.post(url)
+    protected fun post(url: String, requestBody: Any? = null): ResultActions =
+            if (requestBody == null)
+                performRequestWithAuth(MockMvcRequestBuilders.post(url))
+            else performRequestWithAuth(MockMvcRequestBuilders.post(url)
                     .contentType(APPLICATION_JSON)
                     .content(toJson(requestBody)))
 

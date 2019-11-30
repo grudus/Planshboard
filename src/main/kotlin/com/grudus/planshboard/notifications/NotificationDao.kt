@@ -23,4 +23,14 @@ constructor(private val dsl: DSLContext) {
                     .where(NOTIFICATIONS.AVAILABLE_FOR.eq(forUserId))
                     .fetchInto(Notification::class.java)
 
+    fun delete(id: Id) =
+            dsl.deleteFrom(NOTIFICATIONS)
+                    .where(NOTIFICATIONS.ID.eq(id))
+                    .execute()
+
+    fun markAsVisited(id: Id) =
+            dsl.update(NOTIFICATIONS)
+                    .set(NOTIFICATIONS.VISITED, true)
+                    .where(NOTIFICATIONS.ID.eq(id))
+                    .execute()
 }

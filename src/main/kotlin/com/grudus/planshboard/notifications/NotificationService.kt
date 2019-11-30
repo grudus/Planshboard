@@ -38,4 +38,18 @@ constructor(private val notificationDao: NotificationDao,
 
     private fun save(notification: Notification): Id =
             notificationDao.save(notification)
+
+    fun acceptNotification(id: Id) {
+        notificationDao.markAsVisited(id)
+    }
+
+    fun rejectNotification(id: Id) {
+        notificationDao.markAsVisited(id)
+    }
+
+    fun delete(id: Id) {
+        notificationDao.delete(id)
+    }
+
+
 }

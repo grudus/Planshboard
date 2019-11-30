@@ -5,6 +5,7 @@ import com.grudus.planshboard.configuration.security.AuthenticatedUser
 import com.grudus.planshboard.notifications.model.NotificationDto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,6 +20,7 @@ constructor(private val notificationService: NotificationService) {
             notificationService.findAll(user.id)
 
     @PostMapping("/{id}/accept")
+    @PreAuthorize("@notificationSecurityService.hasAccessToNotification(#user, #id)")
     fun acceptMarkedAsOpponentNotification(
             user: AuthenticatedUser,
             @PathVariable("id") id: Id
@@ -29,6 +31,7 @@ constructor(private val notificationService: NotificationService) {
 
 
     @PostMapping("/{id}/reject")
+    @PreAuthorize("@notificationSecurityService.hasAccessToNotification(#user, #id)")
     fun rejectMarkedAsOpponentNotification(
             user: AuthenticatedUser,
             @PathVariable("id") id: Id
@@ -38,6 +41,7 @@ constructor(private val notificationService: NotificationService) {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@notificationSecurityService.hasAccessToNotification(#user, #id)")
     fun deleteNotification(
             user: AuthenticatedUser,
             @PathVariable("id") id: Id

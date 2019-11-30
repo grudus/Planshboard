@@ -51,5 +51,7 @@ constructor(private val notificationDao: NotificationDao,
         notificationDao.delete(id)
     }
 
+    fun isAvailableForUser(userId: Id, notificationId: Id): Boolean =
+            notificationDao.findById(notificationId)?.availableFor == userId
 
 }

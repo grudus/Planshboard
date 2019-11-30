@@ -33,4 +33,9 @@ constructor(private val dsl: DSLContext) {
                     .set(NOTIFICATIONS.VISITED, true)
                     .where(NOTIFICATIONS.ID.eq(id))
                     .execute()
+
+    fun findById(id: Id): Notification? =
+            dsl.selectFrom(NOTIFICATIONS)
+                    .where(NOTIFICATIONS.ID.eq(id))
+                    .fetchOneInto(Notification::class.java)
 }

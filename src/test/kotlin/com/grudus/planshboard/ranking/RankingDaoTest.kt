@@ -66,4 +66,20 @@ constructor(private val rankingDao: RankingDao,
         assertEquals(0, ranking[1].numberOfFirstPositions)
         assertEquals(0, ranking[2].numberOfFirstPositions)
     }
+
+    @Test
+    fun `should find opponents without winning plays`() {
+        val opponentId = opponentsUtil.addOpponents(userId, 1)[0]
+
+        playUtil.addPlay(boardGameId, listOf(opponentId), { id, playId ->
+            PlayResult(playId, id, null, 33)
+        })
+
+        val ranking = rankingDao.getMostFrequentFirstPosition(userId)
+
+        // user-opponent always exists in db
+        assertEquals(2, ranking.size)
+        assertEquals(0, ranking[0].numberOfFirstPositions)
+        assertEquals(0, ranking[1].numberOfFirstPositions)
+    }
 }

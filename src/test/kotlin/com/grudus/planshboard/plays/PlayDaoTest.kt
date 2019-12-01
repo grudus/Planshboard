@@ -2,6 +2,7 @@ package com.grudus.planshboard.plays
 
 import com.grudus.planshboard.AbstractDatabaseTest
 import com.grudus.planshboard.commons.Id
+import com.grudus.planshboard.plays.model.PlayResponse
 import com.grudus.planshboard.plays.model.PlayResult
 import com.grudus.planshboard.plays.opponent.OpponentDao
 import com.grudus.planshboard.utils.BoardGameUtil
@@ -94,6 +95,26 @@ constructor(private val playDao: PlayDao,
         val plays = playDao.findPlaysForBoardGame(boardGameId)
 
         assertEquals(playsCount, plays.size)
+    }
+
+    @Test
+    fun `should find plays for board game and sort them properly`() {
+        val (opponent1, opponent2) = addOpponents(2)
+        val playId1 = playUtil.addPlay(boardGameId, listOf(opponent1, opponent2), {opId, playId ->
+            if (opId == opponent1) PlayResult(playId, opId, 12, 1)
+            else PlayResult(playId, opId, 3, 2)
+        })
+        val playId2 = playUtil.addPlay(boardGameId, listOf(opponent1, opponent2), {opId, playId ->
+            if (opId == opponent2) PlayResult(playId, opId, 12, 1)
+            else PlayResult(playId, opId, 3, 2)
+        })
+
+        val plays: List<PlayResponse> = playDao.findPlaysForBoardGame(boardGameId)
+
+        assertEquals(playId2, plays[0].id)
+        assertEquals(playId1, plays[1].id)
+        assertEquals(opponent2, plays[0].results[0].opponentId)
+        assertEquals(opponent1, plays[1].results[0].opponentId)
     }
 
     @Test

@@ -78,7 +78,7 @@ constructor(private val dsl: DSLContext) {
                     .join(PLAYS_RESULTS).on(PLAYS_RESULTS.PLAY_ID.eq(PLAYS.ID))
                     .join(OPPONENTS).on(OPPONENTS.ID.eq(PLAYS_RESULTS.OPPONENT_ID))
                     .where(PLAYS.BOARDGAME_ID.eq(boardGameId))
-                    .orderBy(PLAYS.DATE.desc())
+                    .orderBy(PLAYS.DATE.desc(), PLAYS_RESULTS.POSITION, OPPONENTS.NAME)
                     .fetchGroups({ record ->
                         Triple(record[PLAYS.ID], record[PLAYS.NOTE], record[PLAYS.DATE])
                     }, { record ->

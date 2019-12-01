@@ -8,6 +8,7 @@ import com.grudus.planshboard.stats.models.StatsDto
 import com.grudus.planshboard.utils.BoardGameUtil
 import com.grudus.planshboard.utils.OpponentsUtil
 import com.grudus.planshboard.utils.PlayUtil
+import com.grudus.planshboard.utils.RequestParam
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -38,7 +39,7 @@ constructor(
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.boardGamesCount").value(0))
                 .andExpect(jsonPath("$.allPlaysCount").value(0))
-                .andExpect(jsonPath("$.playPositionsPerOpponentCount", empty<Any>()))
+                .andExpect(jsonPath("$.opponentWins").value(0))
                 .andExpect(jsonPath("$.playsPerBoardGameCount", empty<Any>()))
     }
 
@@ -52,7 +53,7 @@ constructor(
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.boardGamesCount").value(boardGamesCount))
                 .andExpect(jsonPath("$.allPlaysCount").value(boardGamesCount))
-                .andExpect(jsonPath("$.playPositionsPerOpponentCount", hasSize<Int>(1)))
+                .andExpect(jsonPath("$.opponentWins").value(boardGamesCount))
                 .andExpect(jsonPath("$.playsPerBoardGameCount", hasSize<Int>(boardGamesCount)))
     }
 
@@ -78,7 +79,7 @@ constructor(
     }
 
     @Test
-    fun `should count opponent's positions`() {
+    fun `should count opponent's wins`() {
         val numberOfOpponents = 2
         val opponents = opponentsUtil.addOpponents(userId, numberOfOpponents)
 
@@ -93,12 +94,10 @@ constructor(
             })
         }
 
-        val stats = getAndReturn(baseUrl, StatsDto::class.java)
-        val count = {id: Id -> stats.playPositionsPerOpponentCount.find { it.opponent.id == id }?.count}
+        val stats = getAndReturn(baseUrl, StatsDto::class.java, RequestParam("forOpponentId", opponents[0].toString()))
+        val opponentWins = stats.opponentWins
 
-        assertEquals(2, stats.playPositionsPerOpponentCount.size )
-        assertEquals(3, count(opponents[0]))
-        assertEquals(1, count(opponents[1]))
+        assertEquals(3, opponentWins)
     }
 
 

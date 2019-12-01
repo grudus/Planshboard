@@ -10,6 +10,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import kotlin.random.Random.Default.nextInt
 
 class PlaysStatsDaoTest
 @Autowired
@@ -63,7 +64,7 @@ constructor(private val dao: PlaysStatsDao,
 
 
     @Test
-    fun `should count won games and group it by opponent`() {
+    fun `should count opponent wins`() {
         val gameId = boardGameUtil.addRandomBoardGame(userId)
         val opponents = addNewOpponentsAndUser(3)
         val userAsOpponent = opponents[2]
@@ -80,17 +81,15 @@ constructor(private val dao: PlaysStatsDao,
                         userAsOpponent to position(1))
         )
 
-        playsResults.forEach{
+        playsResults.forEach {
             playUtil.addPlay(gameId, opponents, { id, playId -> it.getValue(id)(playId, id) })
         }
 
-        val firstPositionsPerOpponent = dao.countPlayPositionPerOpponent(userId)
+        val opponentWins1 = dao.findOpponentWins(userAsOpponent)
+        val opponentWins2 = dao.findOpponentWins(opponents[1])
 
-        val count = {id: Id -> firstPositionsPerOpponent.find { it.opponent.id == id }?.count }
-
-        assertEquals(2, firstPositionsPerOpponent.size)
-        assertEquals(2, count(userAsOpponent))
-        assertEquals(1, count(opponents[1]))
+        assertEquals(2, opponentWins1)
+        assertEquals(1, opponentWins2)
     }
 
 
@@ -107,11 +106,11 @@ constructor(private val dao: PlaysStatsDao,
 
         val numberOfPlaysPerGame = dao.countPlaysPerBoardGames(opponentsUtil.asOpponent(userId))
 
-        val count = {id: Id -> numberOfPlaysPerGame.find { it.boardGame.id == id }?.count }
+        val count = { id: Id -> numberOfPlaysPerGame.find { it.boardGame.id == id }?.count }
 
         assertEquals(gamesCount, numberOfPlaysPerGame.size)
 
-        repeat(gamesCount) {i ->
+        repeat(gamesCount) { i ->
             assertEquals(numbersOfPlays[i], count(games[i]))
         }
     }
@@ -139,14 +138,14 @@ constructor(private val dao: PlaysStatsDao,
         val sortedGameIds = boardGameUtil.addRandomBoardGames(userId, gamesCount)
                 .sorted()
 
-        repeat(gamesCount) {i ->
-            playUtil.addPlays(sortedGameIds[i], addNewOpponentsAndUser(), i+1)
+        repeat(gamesCount) { i ->
+            playUtil.addPlays(sortedGameIds[i], addNewOpponentsAndUser(), i + 1)
         }
 
         val sortedNumberOfPlaysPerGame = dao.countPlaysPerBoardGames(opponentsUtil.asOpponent(userId))
                 .sortedBy { it.boardGame.id }
 
-        repeat(gamesCount) {i ->
+        repeat(gamesCount) { i ->
             assertEquals(sortedGameIds[i], sortedNumberOfPlaysPerGame[i].boardGame.id)
         }
     }
@@ -166,6 +165,61 @@ constructor(private val dao: PlaysStatsDao,
         assertEquals(2, plays2)
     }
 
+    @Test
+    fun `should find opponent wins per board game`() {
+        val boardGame = boardGameUtil.addRandomBoardGame(userId)
+        val boardGame2 = boardGameUtil.addRandomBoardGame(userId)
+        val (opponent1, opponent2) = opponentsUtil.addOpponents(userId, 2)
+
+        playUtil.addPlay(boardGame, listOf(opponent1, opponent2), { opId, playId ->
+            if (opId == opponent1)
+                PlayResult(playId, opId, 11, 1)
+            else PlayResult(playId, opId, 1, 2)
+        })
+        playUtil.addPlay(boardGame, listOf(opponent1, opponent2), { opId, playId ->
+            if (opId == opponent2)
+                PlayResult(playId, opId, 11, 1)
+            else PlayResult(playId, opId, 1, 2)
+        })
+        addWinsFor(boardGame2, opponent1, 5)
+
+
+        val wins: Map<Long, Int> = dao.findOpponentWinsPerBoardGame(opponent1)
+                .associate { it.boardGame.id!! to it.count }
+
+        assertEquals(1, wins[boardGame])
+        assertEquals(5, wins[boardGame2])
+    }
+
+    @Test
+    fun `should find opponent wins per borad game and sort it by count desc`() {
+        val boardGame = boardGameUtil.addRandomBoardGame(userId)
+        val boardGame2 = boardGameUtil.addRandomBoardGame(userId)
+        val boardGame3 = boardGameUtil.addRandomBoardGame(userId)
+        val opponentId = opponentsUtil.addOpponents(userId, 1)[0]
+
+        addWinsFor(boardGame, opponentId, 3)
+        addWinsFor(boardGame2, opponentId, 17)
+        addWinsFor(boardGame3, opponentId, 8)
+
+        val wins = dao.findOpponentWinsPerBoardGame(opponentId)
+
+        assertEquals(17, wins[0].count)
+        assertEquals(boardGame2, wins[0].boardGame.id)
+        assertEquals(8, wins[1].count)
+        assertEquals(boardGame3, wins[1].boardGame.id)
+        assertEquals(3, wins[2].count)
+        assertEquals(boardGame, wins[2].boardGame.id)
+    }
+
+
+    private fun addWinsFor(boardGameId: Id, opponentId: Id, count: Int = 1) {
+        (0 until count).forEach { _ ->
+            playUtil.addPlay(boardGameId, listOf(opponentId), { opId, playId ->
+                PlayResult(playId, opId, nextInt(), 1)
+            })
+        }
+    }
 
     private fun position(position: Int): (Id, Id) -> PlayResult =
             { playId, id -> PlayResult(playId, id, null, position) }

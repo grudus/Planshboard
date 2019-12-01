@@ -6,6 +6,7 @@ import com.grudus.planshboard.commons.Id
 import com.grudus.planshboard.plays.opponent.model.OpponentDto
 import com.grudus.planshboard.stats.models.OpponentCount
 import com.grudus.planshboard.stats.models.PlaysCount
+import com.grudus.planshboard.stats.models.WinsCount
 import com.grudus.planshboard.utils.jooq.DbResult3
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.count
@@ -37,16 +38,23 @@ constructor(private val dsl: DSLContext) {
                         PlaysCount(BoardGameDto(boardGameId, boardGameName), count)
                     }
 
-    fun countPlayPositionPerOpponent(userId: Id, position: Int = 1): List<OpponentCount> =
-            dsl.select(OPPONENTS.ID, OPPONENTS.NAME, count())
+    fun findOpponentWins(opponentId: Id): Int =
+            dsl.select(count())
                     .from(PLAYS_RESULTS)
                     .join(OPPONENTS).on(OPPONENTS.ID.eq(PLAYS_RESULTS.OPPONENT_ID))
-                    .join(PLAYS).on(PLAYS.ID.eq(PLAYS_RESULTS.PLAY_ID))
-                    .join(BOARDGAMES).on(BOARDGAMES.ID.eq(PLAYS.BOARDGAME_ID))
-                    .where(OPPONENTS.CREATED_BY.eq(userId)).and(PLAYS_RESULTS.POSITION.eq(position))
-                    .groupBy(OPPONENTS.ID)
+                    .where(OPPONENTS.ID.eq(opponentId)).and(PLAYS_RESULTS.POSITION.eq(1))
+                    .fetchOneInto(Int::class.java)
+
+    fun findOpponentWinsPerBoardGame(opponentId: Id): List<WinsCount> =
+            dsl.select(BOARDGAMES.ID, BOARDGAMES.NAME, count())
+                    .from(PLAYS)
+                    .join(BOARDGAMES).onKey()
+                    .join(PLAYS_RESULTS).on(PLAYS_RESULTS.PLAY_ID.eq(PLAYS.ID))
+                    .where(PLAYS_RESULTS.OPPONENT_ID.eq(opponentId).and(PLAYS_RESULTS.POSITION.eq(1)))
+                    .groupBy(BOARDGAMES.ID)
+                    .orderBy(count().desc())
                     .fetch { record ->
-                        val (opponentId, opponentName, count) = DbResult3(record)
-                        OpponentCount(OpponentDto(opponentId, opponentName), count)
+                        val (boardGameId, boardGameName, count) = DbResult3(record)
+                        WinsCount(BoardGameDto(boardGameId, boardGameName), count)
                     }
 }

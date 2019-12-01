@@ -14,18 +14,12 @@ constructor(private val gamesStatsDao: GamesStatsDao,
 
 
     fun generateStats(userId: Id, opponentId: Id): StatsDto {
-        val playPositionsPerOpponentCount: List<OpponentCount> = playsStatsDao.countPlayPositionPerOpponent(userId)
-        val opponentWins = findOpponentWins(playPositionsPerOpponentCount, opponentId)
         return StatsDto(
                 boardGamesCount = gamesStatsDao.countAllGames(opponentId),
                 allPlaysCount = playsStatsDao.countAllPlays(opponentId),
-                playPositionsPerOpponentCount = playPositionsPerOpponentCount,
                 playsPerBoardGameCount = playsStatsDao.countPlaysPerBoardGames(opponentId),
-                opponentWins = opponentWins
+                opponentWins = playsStatsDao.findOpponentWins(opponentId),
+                winsPerBoardGame = playsStatsDao.findOpponentWinsPerBoardGame(opponentId)
         )
     }
-
-    private fun findOpponentWins(playPositionsPerOpponentCount: List<OpponentCount>, opponentId: Id): Int =
-            playPositionsPerOpponentCount.find { it.opponent.id == opponentId }
-                    ?.count ?: 0
 }
